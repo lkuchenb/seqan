@@ -598,7 +598,7 @@ write(TFile & target,
     unsigned int leftSpace = 6;
     while (begin_ < end_)
     {
-        unsigned int windowSize_ = 50;
+        unsigned int windowSize_ = 250;
         if ((begin_ + windowSize_) > end_)
             windowSize_ = end_ - begin_;
 
@@ -658,7 +658,7 @@ write(TFile & target,
             streamPut(target, '\n');
         }
         streamPut(target, '\n');
-        begin_ += 50;
+        begin_ += windowSize_;
     }
     streamPut(target, '\n');
 }
