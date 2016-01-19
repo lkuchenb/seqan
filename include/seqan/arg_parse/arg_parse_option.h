@@ -108,6 +108,8 @@ public:
     bool                _isRequired;  // true if this ArgParseOption must be set
     bool                _isHidden;    // true if this ArgParseOption should not be
                                       // shown on the command line
+    bool                _isAdvanced;  // true if this ArgParseOption should only
+                                      // be shown in the full help
 
     // ----------------------------------------------------------------------------
     // Constructors
@@ -124,7 +126,8 @@ public:
         longName(_longName),
         _isFlag(false),
         _isRequired(false),
-        _isHidden(false)
+        _isHidden(false),
+        _isAdvanced(false)
     {
         _helpText = _help;
     }
@@ -137,7 +140,8 @@ public:
         longName(_longName),
         _isFlag(true),
         _isRequired(false),
-        _isHidden(false)
+        _isHidden(false),
+        _isAdvanced(false)
     {
         defaultValue.push_back("false");
         setValidValues(*this, "true false");
@@ -222,6 +226,49 @@ inline void hideOption(ArgParseOption & me, bool hide = true)
 }
 
 // ----------------------------------------------------------------------------
+// Function isHidden()
+// ----------------------------------------------------------------------------
+
+/*!
+ * @fn ArgParseOption#isAdvanced
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Return whether an option is only shown in the full help screen.
+ *
+ * @signature bool isAdvanced(option);
+ *
+ * @param[in] option The ArgParseOption object to query.
+ *
+ * @return bool <tt>true</tt> if it is hidden, <tt>false</tt> otherwise.
+ *
+ * By default, options are not marked as advanced.
+ */
+
+inline bool isAdvanced(ArgParseOption const & me)
+{
+    return me._isAdvanced;
+}
+
+// ----------------------------------------------------------------------------
+// Function hideOption()
+// ----------------------------------------------------------------------------
+
+/*!
+ * @fn ArgParseOption#setAdvanced
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Shows the ArgParseOption only on the full help screen.
+ *
+ * @signature void setAdvanced(option[, advanced]);
+ *
+ * @param[in,out] option The ArgParseOption object to set the advanced flag of.
+ * @param[in]     advanced   <tt>bool</tt> that indicates whether to hide the flag (default: <tt>true</tt>)
+ */
+
+inline void setAdvanced(ArgParseOption & me, bool advanced = true)
+{
+    me._isAdvanced = advanced;
+}
+
+// ----------------------------------------------------------------------------
 // Function isRequired()
 // ----------------------------------------------------------------------------
 
@@ -233,7 +280,7 @@ inline void hideOption(ArgParseOption & me, bool hide = true)
  * @signature bool isRequired(option);
  *
  * @param[in] option The ArgParseOption object to query.
- * 
+ *
  * @return bool <tt>true</tt> if the option is mandatory and <tt>false</tt> if it not.
  *
  * By default, options are not mandatory.
@@ -297,7 +344,7 @@ inline void setDefaultValue(ArgParseOption & me, const TValue & value)
  *
  * @param[in,out] option The ArgParseOption to appen the default value for.
  * @param[in]     v      The value to append, (any type that can be streamed into an <tt>std::stringstream</tt>).
- * 
+ *
  * @section Remarks
  *
  * This function does not check any length restrictions for this value.

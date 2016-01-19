@@ -10,6 +10,8 @@ cmake_minimum_required (VERSION 2.8.2)
 project (seqan_apps_splazers)
 message (STATUS "Configuring apps/splazers")
 
+set (SEQAN_APP_VERSION "1.3")
+
 # ----------------------------------------------------------------------------
 # Dependencies
 # ----------------------------------------------------------------------------
@@ -17,6 +19,11 @@ message (STATUS "Configuring apps/splazers")
 # Search SeqAn and select dependencies.
 set (SEQAN_FIND_DEPENDENCIES NONE)
 find_package (SeqAn REQUIRED)
+
+if (NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message (STATUS "  Not building splazers on 32bit architectures.")
+    return ()
+endif()
 
 # ----------------------------------------------------------------------------
 # Build Setup
@@ -29,6 +36,7 @@ include_directories (${SEQAN_INCLUDE_DIRS})
 add_definitions (${SEQAN_DEFINITIONS})
 
 # Add definitions set by the build system.
+add_definitions (-DSEQAN_APP_VERSION="${SEQAN_APP_VERSION}")
 add_definitions (-DSEQAN_REVISION="${SEQAN_REVISION}")
 add_definitions (-DSEQAN_DATE="${SEQAN_DATE}")
 

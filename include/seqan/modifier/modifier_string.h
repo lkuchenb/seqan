@@ -73,27 +73,27 @@ template <typename TType, typename TTestType> struct IsAnInnerHost;
  *
  * @subsection Using ModReverseString
  *
- * @include demos/modifier/modified_string.cpp
+ * @include demos/dox/modifier/modified_string.cpp
  *
  * The output is als follows:
  *
- * @include demos/modifier/modified_string.cpp.stdout
+ * @include demos/dox/modifier/modified_string.cpp.stdout
  *
  * @subsection Using a custom functor for ModViewString
  *
- * @include demos/modifier/modified_string_mod_view.cpp
+ * @include demos/dox/modifier/modified_string_mod_view.cpp
  *
  * The output is as follows:
  *
- * @include demos/modifier/modified_string_mod_view.cpp.stdout
+ * @include demos/dox/modifier/modified_string_mod_view.cpp.stdout
  *
  * @subsection Using nested modified strings.
  *
- * @include demos/modifier/modified_string_nested.cpp
+ * @include demos/dox/modifier/modified_string_nested.cpp
  *
  * The output is as follows:
  *
- * @include demos/modifier/modified_string_nested.cpp.stdout
+ * @include demos/dox/modifier/modified_string_nested.cpp.stdout
  */
 
 template <typename THost, typename TSpec = void>
@@ -107,12 +107,16 @@ public:
     TCargo_ _cargo;
 
     // Default constructor.
-    ModifiedString() : _host(), _cargo()
+    ModifiedString() :
+        _host(),
+        _cargo()
     {}
 
     // Construct with the actual host.
     explicit
-    ModifiedString(typename Parameter_<THost>::Type host) : _host(_toPointer(host)), _cargo()
+    ModifiedString(typename Parameter_<THost>::Type host) :
+        _host(_toPointer(host)),
+        _cargo()
     {}
 
     // Constructor for creating a ModifiedString with const host from a non-const host.
@@ -120,7 +124,8 @@ public:
     explicit
     ModifiedString(THost_ & host,
                    SEQAN_CTOR_ENABLE_IF(IsConstructible<THost, THost_>)) :
-            _host(_toPointer(host)), _cargo()
+            _host(_toPointer(host)),
+            _cargo()
     {
         ignoreUnusedVariableWarning(dummy);
     }
@@ -134,7 +139,8 @@ public:
                    SEQAN_CTOR_ENABLE_IF(IsAnInnerHost<
                                             typename RemoveReference<THost>::Type,
                                             typename RemoveReference<THost_>::Type >)) :
-            _host(std::forward<THost_>(host)), _cargo()
+            _host(std::forward<THost_>(host)),
+            _cargo()
     {
         ignoreUnusedVariableWarning(dummy);
     }
@@ -146,7 +152,8 @@ public:
     explicit
     ModifiedString(THost_ & host,
                    SEQAN_CTOR_ENABLE_IF(IsAnInnerHost<THost, THost_>)) :
-            _host(host), _cargo()
+            _host(host),
+            _cargo()
     {
         ignoreUnusedVariableWarning(dummy);
     }
@@ -155,7 +162,8 @@ public:
     explicit
     ModifiedString(THost_ const & host,
                    SEQAN_CTOR_ENABLE_IF(IsAnInnerHost<THost, THost_ const>)) :
-            _host(host), _cargo()
+            _host(host),
+            _cargo()
     {
         ignoreUnusedVariableWarning(dummy);
     }
@@ -169,16 +177,16 @@ public:
         return value(*this, pos);
     }
 
-    template <typename TPos> 
-    inline typename Reference<ModifiedString const>::Type  
-    operator[](TPos pos) const 
-    { 
-        return value(*this, pos); 
+    template <typename TPos>
+    inline typename Reference<ModifiedString const>::Type
+    operator[](TPos pos) const
+    {
+        return value(*this, pos);
     }
 
     ModifiedString & operator= (THost & other)
     {
-        _host = _toPointer(other);
+        assign(*this, other);
         return *this;
     }
 };
@@ -475,7 +483,7 @@ template <typename TDest, typename TSource>
 inline void _copyCargo(TDest & me, TSource & _origin)
 {
     _copyCargoImpl(me, _origin, typename IsSameType<
-                   typename RemoveConst_<typename Cargo<TDest>::Type >::Type, 
+                   typename RemoveConst_<typename Cargo<TDest>::Type >::Type,
                    typename RemoveConst_<typename Cargo<TSource>::Type>::Type >::Type());
 }
 
@@ -555,14 +563,14 @@ inline void setHost(ModifiedString<THost, TSpec> & me, THost const & host)
 
 template <typename THost, typename TSpec>
 inline typename Reference<typename Cargo<ModifiedString<THost, TSpec> >::Type >::Type
-cargo(ModifiedString<THost, TSpec> & me) 
+cargo(ModifiedString<THost, TSpec> & me)
 {
     return me._cargo;
 }
 
 template <typename THost, typename TSpec>
 inline typename Reference<typename Cargo<ModifiedString<THost, TSpec> const>::Type >::Type
-cargo(ModifiedString<THost, TSpec> const & me) 
+cargo(ModifiedString<THost, TSpec> const & me)
 {
     return me._cargo;
 }
@@ -572,14 +580,14 @@ cargo(ModifiedString<THost, TSpec> const & me)
 // --------------------------------------------------------------------------
 
 template <typename THost, typename TSpec, typename TPos>
-inline typename Reference<ModifiedString<THost, TSpec> >::Type 
+inline typename Reference<ModifiedString<THost, TSpec> >::Type
 value(ModifiedString<THost, TSpec> & me, TPos pos)
 {
     return value(begin(me, Standard()) + pos);
 }
 
 template <typename THost, typename TSpec, typename TPos>
-inline typename Reference<ModifiedString<THost, TSpec> const >::Type 
+inline typename Reference<ModifiedString<THost, TSpec> const>::Type
 value(ModifiedString<THost, TSpec> const & me, TPos pos)
 {
     return value(begin(me, Standard()) + pos);
@@ -590,7 +598,7 @@ value(ModifiedString<THost, TSpec> const & me, TPos pos)
 // --------------------------------------------------------------------------
 
 template <typename THost, typename TSpec>
-inline typename Size<ModifiedString<THost, TSpec> >::Type 
+inline typename Size<ModifiedString<THost, TSpec> >::Type
 length(ModifiedString<THost, TSpec> const & me)
 {
     return length(host(me));
@@ -601,7 +609,7 @@ length(ModifiedString<THost, TSpec> const & me)
 // --------------------------------------------------------------------------
 //
 //template <typename THost, typename TSpec>
-//inline typename Iterator<ModifiedString<THost, TSpec> const>::Type 
+//inline typename Iterator<ModifiedString<THost, TSpec> const>::Type
 //begin(ModifiedString<THost, TSpec> const & me)
 //{
 //    typedef typename Iterator<ModifiedString<THost, TSpec> const>::Type TResult;
@@ -611,7 +619,7 @@ length(ModifiedString<THost, TSpec> const & me)
 //}
 //
 //template <typename THost, typename TSpec>
-//inline typename Iterator<ModifiedString<THost, TSpec> >::Type 
+//inline typename Iterator<ModifiedString<THost, TSpec> >::Type
 //begin(ModifiedString<THost, TSpec> & me)
 //{
 //    typedef typename Iterator<ModifiedString<THost, TSpec> >::Type TResult;
@@ -621,7 +629,7 @@ length(ModifiedString<THost, TSpec> const & me)
 //}
 
 template <typename THost, typename TSpec, typename TTagSpec>
-inline typename Iterator<ModifiedString<THost, TSpec> const, Tag<TTagSpec> const>::Type 
+inline typename Iterator<ModifiedString<THost, TSpec> const, Tag<TTagSpec> const>::Type
 begin(ModifiedString<THost, TSpec> const & me, Tag<TTagSpec> const tag_)
 {
     typedef typename Iterator<ModifiedString<THost, TSpec> const, Tag<TTagSpec> const>::Type TResult;
@@ -631,7 +639,7 @@ begin(ModifiedString<THost, TSpec> const & me, Tag<TTagSpec> const tag_)
 }
 
 template <typename THost, typename TSpec, typename TTagSpec>
-inline typename Iterator<ModifiedString<THost, TSpec>, Tag<TTagSpec> const>::Type 
+inline typename Iterator<ModifiedString<THost, TSpec>, Tag<TTagSpec> const>::Type
 begin(ModifiedString<THost, TSpec> & me, Tag<TTagSpec> const tag_)
 {
     typedef typename Iterator<ModifiedString<THost, TSpec>, Tag<TTagSpec> const>::Type TResult;
@@ -645,7 +653,7 @@ begin(ModifiedString<THost, TSpec> & me, Tag<TTagSpec> const tag_)
 // --------------------------------------------------------------------------
 //
 //template < typename THost, typename TSpec >
-//inline typename Iterator< ModifiedString<THost, TSpec> const >::Type 
+//inline typename Iterator< ModifiedString<THost, TSpec> const >::Type
 //end(ModifiedString<THost, TSpec> const & me)
 //{
 //    typedef typename Iterator<ModifiedString<THost, TSpec> >::Type TResult;
@@ -655,7 +663,7 @@ begin(ModifiedString<THost, TSpec> & me, Tag<TTagSpec> const tag_)
 //}
 //
 //template < typename THost, typename TSpec >
-//inline typename Iterator< ModifiedString<THost, TSpec> >::Type 
+//inline typename Iterator< ModifiedString<THost, TSpec> >::Type
 //end(ModifiedString<THost, TSpec> & me)
 //{
 //    typedef typename Iterator<ModifiedString<THost, TSpec> const>::Type TResult;
@@ -665,7 +673,7 @@ begin(ModifiedString<THost, TSpec> & me, Tag<TTagSpec> const tag_)
 //}
 
 template < typename THost, typename TSpec, typename TTagSpec >
-inline typename Iterator< ModifiedString<THost, TSpec> const, Tag<TTagSpec> const >::Type 
+inline typename Iterator< ModifiedString<THost, TSpec> const, Tag<TTagSpec> const >::Type
 end(ModifiedString<THost, TSpec> const & me, Tag<TTagSpec> const tag_)
 {
     typedef typename Iterator<ModifiedString<THost, TSpec> const, Tag<TTagSpec> const>::Type TResult;
@@ -675,7 +683,7 @@ end(ModifiedString<THost, TSpec> const & me, Tag<TTagSpec> const tag_)
 }
 
 template < typename THost, typename TSpec, typename TTagSpec >
-inline typename Iterator< ModifiedString<THost, TSpec>, Tag<TTagSpec> const >::Type 
+inline typename Iterator< ModifiedString<THost, TSpec>, Tag<TTagSpec> const >::Type
 end(ModifiedString<THost, TSpec> & me, Tag<TTagSpec> const tag_)
 {
     typedef typename Iterator<ModifiedString<THost, TSpec>, Tag<TTagSpec> const>::Type TResult;
@@ -690,10 +698,10 @@ end(ModifiedString<THost, TSpec> & me, Tag<TTagSpec> const tag_)
 
 template <typename THost, typename TSpec, typename TRight >
 inline bool
-operator==(ModifiedString<THost, TSpec> const & left, 
+operator==(ModifiedString<THost, TSpec> const & left,
            TRight const & right)
 {
-	typename Comparator<ModifiedString<THost, TSpec> >::Type _lex(left, right);
+    typename Comparator<ModifiedString<THost, TSpec> >::Type _lex(left, right);
     return isEqual(_lex);
 }
 
@@ -702,7 +710,7 @@ inline bool
 operator==(TLeftValue * left,
            ModifiedString<THost, TSpec> const & right)
 {
-	typename Comparator<ModifiedString<THost, TSpec> >::Type _lex(left, right);
+    typename Comparator<ModifiedString<THost, TSpec> >::Type _lex(left, right);
     return isEqual(_lex);
 }
 
@@ -712,10 +720,10 @@ operator==(TLeftValue * left,
 
 template <typename THost, typename TSpec, typename TRight >
 inline bool
-operator!=(ModifiedString<THost, TSpec> const & left, 
+operator!=(ModifiedString<THost, TSpec> const & left,
            TRight const & right)
 {
-	typename Comparator<ModifiedString<THost, TSpec> >::Type _lex(left, right);
+    typename Comparator<ModifiedString<THost, TSpec> >::Type _lex(left, right);
     return isNotEqual(_lex);
 }
 
@@ -724,7 +732,7 @@ inline bool
 operator!= (TLeftValue * left,
             ModifiedString<THost, TSpec> const & right)
 {
-	typename Comparator<ModifiedString<THost, TSpec> >::Type _lex(left, right);
+    typename Comparator<ModifiedString<THost, TSpec> >::Type _lex(left, right);
     return isNotEqual(_lex);
 }
 
@@ -734,10 +742,10 @@ operator!= (TLeftValue * left,
 
 template <typename THost, typename TSpec, typename TRight>
 inline bool
-operator<(ModifiedString<THost, TSpec> const & left, 
+operator<(ModifiedString<THost, TSpec> const & left,
           TRight const & right)
 {
-	return isLess(left, right, typename DefaultPrefixOrder<ModifiedString<THost, TSpec> >::Type());
+    return isLess(left, right, typename DefaultPrefixOrder<ModifiedString<THost, TSpec> >::Type());
 }
 
 template <typename TLeftValue, typename THost, typename TSpec >
@@ -745,7 +753,7 @@ inline bool
 operator<(TLeftValue * left,
           ModifiedString<THost, TSpec> const & right)
 {
-	return isLess(left, right, typename DefaultPrefixOrder<TLeftValue *>::Type());
+    return isLess(left, right, typename DefaultPrefixOrder<TLeftValue *>::Type());
 }
 
 // --------------------------------------------------------------------------
@@ -754,10 +762,10 @@ operator<(TLeftValue * left,
 
 template <typename THost, typename TSpec, typename TRight>
 inline bool
-operator<=(ModifiedString<THost, TSpec> const & left, 
+operator<=(ModifiedString<THost, TSpec> const & left,
            TRight const & right)
 {
-	return isLessOrEqual(left, right, typename DefaultPrefixOrder<ModifiedString<THost, TSpec> >::Type());
+    return isLessOrEqual(left, right, typename DefaultPrefixOrder<ModifiedString<THost, TSpec> >::Type());
 }
 
 template <typename TLeftValue, typename THost, typename TSpec >
@@ -765,7 +773,7 @@ inline bool
 operator<=(TLeftValue * left,
            ModifiedString<THost, TSpec> const & right)
 {
-	return isLessOrEqual(left, right, typename DefaultPrefixOrder<TLeftValue *>::Type());
+    return isLessOrEqual(left, right, typename DefaultPrefixOrder<TLeftValue *>::Type());
 }
 
 // --------------------------------------------------------------------------
@@ -774,10 +782,10 @@ operator<=(TLeftValue * left,
 
 template <typename THost, typename TSpec, typename TRight>
 inline bool
-operator>(ModifiedString<THost, TSpec> const & left, 
+operator>(ModifiedString<THost, TSpec> const & left,
           TRight const & right)
 {
-	return isGreater(left, right, typename DefaultPrefixOrder<ModifiedString<THost, TSpec> >::Type());
+    return isGreater(left, right, typename DefaultPrefixOrder<ModifiedString<THost, TSpec> >::Type());
 }
 
 template <typename TLeftValue, typename THost, typename TSpec >
@@ -785,7 +793,7 @@ inline bool
 operator>(TLeftValue * left,
           ModifiedString<THost, TSpec> const & right)
 {
-	return isGreater(left, right, typename DefaultPrefixOrder<TLeftValue *>::Type());
+    return isGreater(left, right, typename DefaultPrefixOrder<TLeftValue *>::Type());
 }
 
 // --------------------------------------------------------------------------
@@ -794,10 +802,10 @@ operator>(TLeftValue * left,
 
 template <typename THost, typename TSpec, typename TRight>
 inline bool
-operator>=(ModifiedString<THost, TSpec> const & left, 
+operator>=(ModifiedString<THost, TSpec> const & left,
            TRight const & right)
 {
-	return isGreaterOrEqual(left, right, typename DefaultPrefixOrder<ModifiedString<THost, TSpec> >::Type());
+    return isGreaterOrEqual(left, right, typename DefaultPrefixOrder<ModifiedString<THost, TSpec> >::Type());
 }
 
 template <typename TLeftValue, typename THost, typename TSpec >
@@ -805,7 +813,7 @@ inline bool
 operator>=(TLeftValue * left,
            ModifiedString<THost, TSpec> const & right)
 {
-	return isGreaterOrEqual(left, right, typename DefaultPrefixOrder<TLeftValue *>::Type());
+    return isGreaterOrEqual(left, right, typename DefaultPrefixOrder<TLeftValue *>::Type());
 }
 
 // --------------------------------------------------------------------------
@@ -840,16 +848,27 @@ operator>>(TStream & source, ModifiedString<THost, TSpec> & target)
 
 template <typename THost, typename TSpec>
 inline void const *
-getObjectId(ModifiedString<THost, TSpec> & me) 
+getObjectId(ModifiedString<THost, TSpec> & me)
 {
     return getObjectId(host(me));
 }
 
 template <typename THost, typename TSpec>
 inline void const *
-getObjectId(ModifiedString<THost, TSpec> const & me) 
+getObjectId(ModifiedString<THost, TSpec> const & me)
 {
     return getObjectId(host(me));
+}
+
+// ----------------------------------------------------------------------------
+// Function assign()
+// ----------------------------------------------------------------------------
+
+template <typename THost, typename TSpec, typename TOtherHost, typename TOtherSpec>
+inline void assign(ModifiedString<THost, TSpec> & me, ModifiedString<TOtherHost, TOtherSpec> const & other)
+{
+    setHost(me, host(other));
+    assign(cargo(me), cargo(other));
 }
 
 // --------------------------------------------------------------------------
@@ -878,14 +897,14 @@ open(StringSet<ModifiedString<THost, TSpec>, Owner<ConcatDirect<TSpec2> > > &,
 
 template <typename THost, typename TSpec >
 inline bool
-save(ModifiedString<THost, TSpec> &, const char *, int)
+save(ModifiedString<THost, TSpec> const &, const char *, int)
 {
     return true; // NOOP; this has to be done manually right now
 }
 
 template <typename THost, typename TSpec, typename TSpec2>
 inline bool
-save(StringSet<ModifiedString<THost, TSpec>, Owner<ConcatDirect<TSpec2> > > &,
+save(StringSet<ModifiedString<THost, TSpec>, Owner<ConcatDirect<TSpec2> > > const &,
      const char *,
      int)
 {

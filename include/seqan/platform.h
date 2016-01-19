@@ -35,17 +35,17 @@
 #define SEQAN_PLATFORM_H
 
 #ifdef __MINGW32__
-	#include "platform/platform_mingw.h"
+    #include "platform/platform_mingw.h"
 #elif _MSC_VER
-	#include "platform/platform_windows.h"
+    #include "platform/platform_windows.h"
 #elif __SUNPRO_C
-	#include "platform/platform_solaris.h"
+    #include "platform/platform_solaris.h"
 #elif __ICC
-	#include "platform/platform_icc.h"
+    #include "platform/platform_icc.h"
 #elif __PGI
-	#include "platform/platform_pgi.h"
+    #include "platform/platform_pgi.h"
 #else
-	#include "platform/platform_gcc.h"
+    #include "platform/platform_gcc.h"
 #endif
 
 // NOTE(esiragusa): nvcc header must be included even if __CUDACC__ is not defined.
@@ -96,5 +96,14 @@
 #ifndef SEQAN_UNLIKELY
 #define SEQAN_UNLIKELY(x) (x)
 #endif
+
+// A macro to eliminate warnings on GCC and Clang
+#if (defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))) || defined(__clang__)
+#  define SEQAN_UNUSED __attribute__((unused))
+#else
+#  define SEQAN_UNUSED
+#endif
+// backwards compatibility
+#define SEQAN_UNUSED_TYPEDEF SEQAN_UNUSED
 
 #endif

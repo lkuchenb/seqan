@@ -81,7 +81,7 @@ namespace seqan {
  *            class BamIndex;
  *
  * This is an abstract class; don't use it itself but its specializations.
- * 
+ *
  * @see BamFileIn
  */
 
@@ -185,15 +185,15 @@ public:
 static inline void
 _baiReg2bins(String<__uint16> & list, __uint32 beg, __uint32 end)
 {
-	unsigned k;
-	if (beg >= end) return;
-	if (end >= 1u<<29) end = 1u<<29;
-	--end;
-	appendValue(list, 0);
-	for (k =    1 + (beg>>26); k <=    1 + (end>>26); ++k) appendValue(list, k);
-	for (k =    9 + (beg>>23); k <=    9 + (end>>23); ++k) appendValue(list, k);
-	for (k =   73 + (beg>>20); k <=   73 + (end>>20); ++k) appendValue(list, k);
-	for (k =  585 + (beg>>17); k <=  585 + (end>>17); ++k) appendValue(list, k);
+    unsigned k;
+    if (beg >= end) return;
+    if (end >= 1u<<29) end = 1u<<29;
+    --end;
+    appendValue(list, 0);
+    for (k =    1 + (beg>>26); k <=    1 + (end>>26); ++k) appendValue(list, k);
+    for (k =    9 + (beg>>23); k <=    9 + (end>>23); ++k) appendValue(list, k);
+    for (k =   73 + (beg>>20); k <=   73 + (end>>20); ++k) appendValue(list, k);
+    for (k =  585 + (beg>>17); k <=  585 + (end>>17); ++k) appendValue(list, k);
     for (k = 4681 + (beg>>14); k <= 4681 + (end>>14); ++k) appendValue(list, k);
 }
 
@@ -334,7 +334,7 @@ jumpToRegion(FormattedFile<Bam, Input, TSpec> & bamFile,
  * @param[in]     index          The @link BamIndex @endlink to use for jumping.
  */
 
-template <typename TSpec, typename TNameStore, typename TNameStoreCache>
+template <typename TSpec>
 bool jumpToOrphans(FormattedFile<Bam, Input, TSpec> & bamFile,
                    bool & hasAlignments,
                    BamIndex<Bai> const & index)
@@ -377,7 +377,7 @@ bool jumpToOrphans(FormattedFile<Bam, Input, TSpec> & bamFile,
     // Jump back to the first alignment.
     if (offset != MaxValue<__uint64>::VALUE)
     {
-        if (!setPosition(bamFile, offset, SEEK_SET))
+        if (!setPosition(bamFile, offset))
             return false;  // Error while seeking.
     }
 
@@ -390,7 +390,7 @@ bool jumpToOrphans(FormattedFile<Bam, Input, TSpec> & bamFile,
 // ----------------------------------------------------------------------------
 
 /*!
- * @fn BamIndex#getUnalignedCount 
+ * @fn BamIndex#getUnalignedCount
  * @brief Query index for number of unaligned reads.
  *
  * @signature __uint64 getUnalignedCount(index);
@@ -523,15 +523,26 @@ open(BamIndex<Bai> & index, char * filename)
     return open(index, static_cast<char const *>(filename));
 }
 
-// ----------------------------------------------------------------------------
-// Function buildIndex()
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Function save()
+// ---------------------------------------------------------------------------
 
-inline bool _saveIndex(BamIndex<Bai> const & index, char const * filename)
+/*!
+ * @fn BamIndex#save
+ * @brief Save a BamIndex object.
+ *
+ * @signature bool save(baiIndex, baiFileName);
+ *
+ * @param[in] baiIndex    The BamIndex to write out.
+ * @param[in] baiFileName The name of the BAI file to write to.
+ *
+ * @return bool <tt>true</tt> on success, <tt>false</tt> otherwise.
+ */
+
+inline bool save(BamIndex<Bai> const & index, char const * baiFilename)
 {
-    std::cerr << "WRITE INDEX TO " << filename << std::endl;
     // Open output file.
-    std::ofstream out(filename, std::ios::binary | std::ios::out);
+    std::ofstream out(baiFilename, std::ios::binary | std::ios::out);
 
     SEQAN_ASSERT_EQ(length(index._binIndices), length(index._linearIndices));
 
@@ -570,7 +581,7 @@ inline bool _saveIndex(BamIndex<Bai> const & index, char const * filename)
         }
 
         // Write out linear index.
-        __int32 numIntervals = length(index._linearIndices);
+        __int32 numIntervals = length(linearIndex);
         out.write(reinterpret_cast<char *>(&numIntervals), 4);
         typedef Iterator<String<__uint64> const, Rooted>::Type TLinearIndexIter;
         for (TLinearIndexIter it = begin(linearIndex, Rooted()); !atEnd(it); goNext(it))
@@ -578,12 +589,13 @@ inline bool _saveIndex(BamIndex<Bai> const & index, char const * filename)
     }
 
     // Write the number of unaligned reads if set.
-    std::cerr << "UNALIGNED\t" << index._unalignedCount << std::endl;
+    //std::cerr << "UNALIGNED\t" << index._unalignedCount << std::endl;
     if (index._unalignedCount != maxValue<__uint64>())
         out.write(reinterpret_cast<char const *>(&index._unalignedCount), 8);
 
     return out.good();  // false on error, true on success.
 }
+
 
 inline void _baiAddAlignmentChunkToBin(BamIndex<Bai> & index,
                                        __uint32 currBin,
@@ -608,10 +620,24 @@ inline void _baiAddAlignmentChunkToBin(BamIndex<Bai> & index,
     }
 }
 
-inline bool
-buildIndex(BamIndex<Bai> & index, char const * filename)
+// ---------------------------------------------------------------------------
+// Function build()
+// ---------------------------------------------------------------------------
+// TODO(dadi): uncomment when BamIndex.build index is fixed. DOX commented out
+/*
+ * @fn BamIndex#build
+ * @brief Create a BamIndex from BAM file.
+ *
+ * @signature bool build(baiIndex, bamFileName);
+ *
+ * @param[out] baiIndex    The BamIndex to build into.
+ * @param[in]  bamFileName Path to the BAM file to build an index for.  Type: <tt>char const *</tt>.
+ *
+ * @return bool <tt>true</tt> on success, <tt>false</tt> otherwise.
+ */
+inline bool build(BamIndex<Bai> & index, char const * bamFilename)
 {
-    SEQAN_FAIL("This does not work yet!");
+    // SEQAN_FAIL("This does not work yet!");
 
     index._unalignedCount = 0;
     clear(index._binIndices);
@@ -619,7 +645,7 @@ buildIndex(BamIndex<Bai> & index, char const * filename)
 
     // Open BAM file for reading.
     BamFileIn bamFile;
-    if (!open(bamFile, filename))
+    if (!open(bamFile, bamFilename))
         return false;  // Could not open BAM file.
 
     // Read BAM header.
@@ -758,13 +784,10 @@ buildIndex(BamIndex<Bai> & index, char const * filename)
     }
 
     // Merge small bins if possible.
-    SEQAN_FAIL("TODO: Merge bins!");
-
-    // Write out index.
-    CharString baiFilename(filename);
-    append(baiFilename, ".bai");
-    return _saveIndex(index, toCString(baiFilename));
+    // SEQAN_FAIL("TODO: Merge bins!");
+    return true;
 }
+
 
 }  // namespace seqan
 

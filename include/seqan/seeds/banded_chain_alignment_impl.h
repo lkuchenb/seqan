@@ -524,7 +524,7 @@ _computeCell(TDPScout & scout,
 }
 
 // ----------------------------------------------------------------------------
-// Function _computeCell()		  [BandedChainAlignment, FullColumn, FirstCell]
+// Function _computeCell()          [BandedChainAlignment, FullColumn, FirstCell]
 // ----------------------------------------------------------------------------
 
 // For DPInnerColumn.
@@ -925,7 +925,7 @@ _computeGapArea(TTraceSet & globalTraceSet,
     _adaptLocalTracesToGlobalGrid(localTraceSet, gridBegin);
     if (!empty(localTraceSet))
         _glueTracebacks(globalTraceSet, localTraceSet);
-    
+
     scoutState._horizontalNextGridOrigin += gridBegin.i1;
     scoutState._verticalNextGridOrigin += gridBegin.i2;
     return score;
@@ -1087,13 +1087,14 @@ _finishBandedChain(TTraceSet & globalTraceSet,
                           upperDiagonal(band)+ 1, 1 - lowerDiagonal(band));
             // TODO(rmaerker): Should we not set the nextGridOrigin to 0 as it is the case for the last rectangle? We want to compute the last full path.
             // Compute the last anchor which crosses the end of the global grid.
+        clear(localTraceSet);
         TScoreValue score = _computeAlignment(localTraceSet, dpScoutState, infixH, infixV, scoreSchemeAnchor, band,
                                   DPProfile_<BandedChainAlignment_<TFreeEndGaps, BandedChainFinalDPMatrix>, TGaps, TracebackOn<TTracebackConfig> >());
 
         _adaptLocalTracesToGlobalGrid(localTraceSet, gridBegin);
         if (!empty(localTraceSet))
             _glueTracebacks(globalTraceSet, localTraceSet);
-        return score;   
+        return score;
     }
 
     DPBandConfig<BandOn> band(-static_cast<TSignedPosition>((bandExtension << 1)) -static_cast<TSignedPosition>(verticalBandShift),

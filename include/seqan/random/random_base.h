@@ -60,7 +60,7 @@ struct MersenneTwister;
  *
  * The following code shows how to generate random numbers and shuffle a text.
  *
- * @include demos/random/random.cpp
+ * @include demos/dox/random/random.cpp
  *
  * @code{.console}
  * pickRandomNumber(rng) == 1608637542
@@ -175,8 +175,8 @@ const typename Value<Rng<TSpec> >::Type MaxValue<Rng<TSpec> >::VALUE = MaxValue<
 template <typename TSpec>
 struct MaxValue<Rng<TSpec> const>
 {
-	typedef typename Value<Rng<TSpec> const>::Type TValue_;
-	static const TValue_ VALUE;
+    typedef typename Value<Rng<TSpec> const>::Type TValue_;
+    static const TValue_ VALUE;
 };
 
 template <typename TSpec>
@@ -185,8 +185,8 @@ const typename Value<Rng<TSpec> const>::Type MaxValue<Rng<TSpec> const>::VALUE =
 template <typename TSpec>
 struct MinValue<Rng<TSpec> >
 {
-	typedef typename Value<Rng<TSpec> >::Type TValue_;
-	static const TValue_ VALUE;
+    typedef typename Value<Rng<TSpec> >::Type TValue_;
+    static const TValue_ VALUE;
 };
 
 template <typename TSpec>
@@ -195,8 +195,8 @@ const typename Value<Rng<TSpec> >::Type MinValue<Rng<TSpec> >::VALUE = MinValue<
 template <typename TSpec>
 struct MinValue<Rng<TSpec> const>
 {
-	typedef typename Value<Rng<TSpec> const>::Type TValue_;
-	static const TValue_ VALUE;
+    typedef typename Value<Rng<TSpec> const>::Type TValue_;
+    static const TValue_ VALUE;
 };
 
 template <typename TSpec>

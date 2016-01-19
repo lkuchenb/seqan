@@ -48,22 +48,12 @@ template <typename TValue, typename TDirection, typename TTraits = std::char_tra
 class BufferedStreamBuf;
 
 // ============================================================================
-// Tags, Enums
-// ============================================================================
-
-// ============================================================================
-// Metafunctions
-// ============================================================================
-
-// ============================================================================
 // Classes
 // ============================================================================
 
 // ----------------------------------------------------------------------------
 // Class BufferedStream
 // ----------------------------------------------------------------------------
-
-// TODO(esiragusa): @extends BasicStream::Type
 
 /*!
  * @class BufferedStream
@@ -77,6 +67,7 @@ class BufferedStreamBuf;
  * @tparam TUnbufferedStream The type of the unbuffered @link StreamConcept stream @endlink to wrap.
  * @tparam TDirection        The stream direction, one of @link DirectionTags @endlink.
  */
+// TODO(esiragusa): @extends BasicStream::Type
 
 template <typename TUnbufferedStream, typename TDirection>
 class BufferedStream :
@@ -140,10 +131,8 @@ public:
 };
 
 // ----------------------------------------------------------------------------
-// Class BufferedStream
+// Class BufferedStreamBuf
 // ----------------------------------------------------------------------------
-
-// TODO(holtgrew): Implementation detail, should thus be called BufferedStreamBuf_ or documented.
 
 template <typename TValue, typename TDirection, typename TTraits>
 class BufferedStreamBuf :
@@ -151,7 +140,7 @@ class BufferedStreamBuf :
 {
 protected:
     typedef std::basic_streambuf<TValue, TTraits>                   TStreamBuf;
-	typedef typename TTraits::int_type                              TInt;
+    typedef typename TTraits::int_type                              TInt;
 
     static const size_t defaultBufferSize = 1024;   // size of the data buffer
     static const size_t defaultPutbackSize = 256;   // size of the buffer that should be used as putback area
@@ -232,14 +221,14 @@ protected:
             numPutback * sizeof(TValue));
 
         // read new characters
-        size_t numRead = streamBufPtr->sgetn(
+		std::streamsize numRead = streamBufPtr->sgetn(
                             &buffer[putbackSize],
                             buffer.size() - putbackSize);
 
         // reset buffer pointers
         setg(&buffer[putbackSize - numPutback],     // beginning of putback area
              &buffer[putbackSize],                  // read position
-             &buffer[putbackSize + numRead]);       // end position
+             &buffer[putbackSize + static_cast<size_t>(numRead)]);       // end position
 
         if (numRead <= 0)
         {

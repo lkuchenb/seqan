@@ -212,35 +212,35 @@ inline void assignValue(
 
     assign(journalSet[pos], newElement);
 }
+
 // ----------------------------------------------------------------------------
 // Function host()
 // ----------------------------------------------------------------------------
 
+template <typename TString>
+inline Holder<typename Host<StringSet<TString, Owner<JournaledSet> > >::Type> const &
+_dataHost(StringSet<TString, Owner<JournaledSet> > const & set)
+{
+    return set._globalRefHolder;
+}
+
+template <typename TString>
+inline Holder<typename Host<StringSet<TString, Owner<JournaledSet> > >::Type>  &
+_dataHost(StringSet<TString, Owner<JournaledSet> > & set)
+{
+    return set._globalRefHolder;
+}
+
 /*!
  * @fn JournaledSet#host
  * @brief Returns the global reference sequence of a @link JournaledSet @endlink.
- * 
+ *
  * @signature THost host(stringSet);
- * 
+ *
  * @param[in] stringSet The JournaledStringSet that stores the sequences. Types: @link  JournaledSet  @endlink
- * 
+ *
  * @return THost Reference to the host.
  */
-
-template <typename TString>
-inline typename Host<StringSet<TString, Owner<JournaledSet> > >::Type const &
-host(StringSet<TString, Owner<JournaledSet> > const & journalSet)
-{
-    return value(journalSet._globalRefHolder);
-}
-
-
-template <typename TString>
-inline typename Host<StringSet<TString, Owner<JournaledSet> > >::Type &
-host(StringSet<TString, Owner<JournaledSet> > & journalSet)
-{
-    return value(journalSet._globalRefHolder);
-}
 
 // ----------------------------------------------------------------------------
 // Function setHost()
@@ -249,24 +249,16 @@ host(StringSet<TString, Owner<JournaledSet> > & journalSet)
 /*!
  * @fn JournaledSet#setHost
  * @brief Sets the global reference of a @link JournaledSet @endlink.
- * 
+ *
  * @signature void setHost(stringSet, ref);
- * 
+ *
  * @param[in,out] stringSet The string set that stores the sequences. Types: @link JournaledSet @endlink
  * @param[in]     ref       The new reference sequence of the @link JournaledSet  @endlink.
- * 
+ *
  * @section Remarks
- * 
+ *
  * Uses an @link Holder @endlink to store a reference to the new global reference sequence instead of copying it.
  */
-
-template <typename TString, typename THost>
-inline void
-setHost(StringSet<TString, Owner<JournaledSet> > & journalSet,
-        THost & newGlobalRef)
-{
-    setValue(journalSet._globalRefHolder, newGlobalRef);
-}
 
 // ----------------------------------------------------------------------------
 // Function createHost()
@@ -282,14 +274,6 @@ setHost(StringSet<TString, Owner<JournaledSet> > & journalSet,
  * @param[in]     ref       The new reference sequence of the JournaledSet.  Stores a copy of the passed global
  *                          reference sequence.
  */
-
-template <typename TString>
-inline void
-createHost(StringSet<TString, Owner<JournaledSet> > & journalSet,
-                   typename Host<TString>::Type const & newGlobalRef)
-{
-    create(journalSet._globalRefHolder, newGlobalRef);
-}
 
 }  // namespace seqan
 

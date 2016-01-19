@@ -104,20 +104,22 @@ SEQAN_DEFINE_TEST(test_modifier_modified_string_construct)
 
         TString original;
         TModifiedString modified(original);
-        TModifiedString modified2(suffix(original, 0));
+//NOTE(h-2): ModStrings cannot be constructed from temporaries
+//         TModifiedString modified2(suffix(original, 0));
     }
 
     {
         TString original;
         typedef seqan::Infix<TString const>::Type TFragment;
         TFragment frag = infix(original, 0, 0);
-        
+
         typedef seqan::ModifiedString<TFragment>            TInnerModifiedString;
         typedef seqan::ModifiedString<TInnerModifiedString> TOuterModifiedString;
 
         TInnerModifiedString modified(frag);
         TOuterModifiedString modified2(frag);
-        TOuterModifiedString modified3(suffix(frag, 0));
+//NOTE(h-2): ModStrings cannot be constructed from temporaries
+//         TOuterModifiedString modified3(suffix(frag, 0));
     }
 }
 
@@ -195,7 +197,7 @@ SEQAN_DEFINE_TEST(test_modifier_modified_string_cascade)
         typedef seqan::Dna5String                           TString;
         typedef seqan::ModifiedString<TString>              TInnerModifiedString;
         typedef seqan::ModifiedString<TInnerModifiedString> TOuterModifiedString;
-        
+
         TString original = "CGAT";
         TInnerModifiedString inner(original);
         TOuterModifiedString outer(original);
@@ -207,7 +209,7 @@ SEQAN_DEFINE_TEST(test_modifier_modified_string_cascade)
         typedef typename seqan::Infix<TString>::Type        TInfix;
         typedef seqan::ModifiedString<TInfix>               TInnerModifiedString;
         typedef seqan::ModifiedString<TInnerModifiedString> TOuterModifiedString;
-        
+
         TString original = "CGAT";
         TInfix origInfix = infix(original, 1, 3);
         TInnerModifiedString inner(origInfix);
@@ -336,12 +338,47 @@ SEQAN_DEFINE_TEST(test_modifier_modified_string_mod_view_segment)
     }
 }
 
+SEQAN_DEFINE_TEST(test_modifier_modified_string_mod_pos)
+{
+    typedef seqan::CharString                       TString;
+    typedef seqan::Position<TString>::Type          TPos;
+    typedef seqan::String<TPos>                     TPositions;
+    typedef seqan::ModPos<TPositions>               TModPos;
+    typedef seqan::ModifiedString<TString, TModPos> TModString;
+
+    // One level only.
+    {
+        TString original = "CGAT";
+
+        TModString modified(original);
+        TPositions positions;
+        setCargo(modified, positions);
+        SEQAN_ASSERT(empty(modified));
+
+        resize(cargo(modified), length(original), 0, seqan::Exact());
+        SEQAN_ASSERT_EQ(modified, "CCCC");
+
+        assign(cargo(modified), seqan::Range<TPos>(0, length(original)));
+        SEQAN_ASSERT_EQ(original, modified);
+
+        reverse(cargo(modified));
+        SEQAN_ASSERT_EQ(modified, "TAGC");
+
+        seqan::sort(modified);
+        SEQAN_ASSERT_EQ(original, "CGAT");
+        SEQAN_ASSERT_EQ(modified, "ACGT");
+
+        SEQAN_ASSERT_EQ(infix(modified, 1, 3), "CG");
+    }
+}
+
+
 SEQAN_DEFINE_TEST(test_modifier_modified_string_literal)
 {
     // Host a literal.
     {
         typedef seqan::ModifiedString<char[5]> TModifiedString;
-        
+
         char str[] = "CGAT";
         TModifiedString modStr(str);
         SEQAN_ASSERT_EQ(modStr, "CGAT");
@@ -349,7 +386,7 @@ SEQAN_DEFINE_TEST(test_modifier_modified_string_literal)
     // Reverse a literal.
     {
         typedef seqan::ModifiedString<char[5], seqan::ModReverse> TModifiedString;
-        
+
         char str[] = "CGAT";
         TModifiedString modStr(str);
         SEQAN_ASSERT_EQ(modStr, "TAGC");
@@ -357,7 +394,7 @@ SEQAN_DEFINE_TEST(test_modifier_modified_string_literal)
     // Lowercase a literal.
     {
         typedef seqan::ModifiedString<char[5], seqan::ModView<LowerFunctor> > TModifiedString;
-        
+
         char str[] = "CGAT";
         TModifiedString modStr(str);
         SEQAN_ASSERT_EQ(modStr, "cgat");
@@ -369,7 +406,7 @@ SEQAN_DEFINE_TEST(test_modifier_modified_string_const_literal)
     // Host a literal.
     {
         typedef seqan::ModifiedString<const char[5]> TModifiedString;
-        
+
         const char str[] = "CGAT";
         TModifiedString modStr(str);
         SEQAN_ASSERT_EQ(modStr, "CGAT");
@@ -377,7 +414,7 @@ SEQAN_DEFINE_TEST(test_modifier_modified_string_const_literal)
     // Reverse a literal.
     {
         typedef seqan::ModifiedString<const char[5], seqan::ModReverse> TModifiedString;
-        
+
         const char str[] = "CGAT";
         TModifiedString modStr(str);
         SEQAN_ASSERT_EQ(modStr, "TAGC");
@@ -385,7 +422,7 @@ SEQAN_DEFINE_TEST(test_modifier_modified_string_const_literal)
     // Lowercase a literal.
     {
         typedef seqan::ModifiedString<const char[5], seqan::ModView<LowerFunctor> > TModifiedString;
-        
+
         const char str[] = "CGAT";
         TModifiedString modStr(str);
         SEQAN_ASSERT_EQ(modStr, "cgat");
@@ -398,12 +435,12 @@ SEQAN_DEFINE_TEST(test_modifier_modified_string_reverse_segment)
     {
         typedef seqan::CharString TString;
         typedef seqan::Infix<TString>::Type TInfix;
-        
+
         typedef seqan::ModView<LowerFunctor> TModViewLower;
         typedef seqan::ModifiedString<TInfix, TModViewLower> TInnerModifiedString;
-        
+
         typedef seqan::ModifiedString<TInnerModifiedString, seqan::ModReverse> TOuterModifiedString;
-        
+
         TString original = "CGAT";
         TInfix origInfix = infix(original, 1, 3);
         TOuterModifiedString outer(origInfix);
@@ -413,12 +450,12 @@ SEQAN_DEFINE_TEST(test_modifier_modified_string_reverse_segment)
     {
         typedef seqan::CharString TString;
         typedef seqan::Infix<TString>::Type TInfix;
-        
+
         typedef seqan::ModifiedString<TInfix, seqan::ModReverse> TInnerModifiedString;
 
         typedef seqan::ModView<LowerFunctor> TModViewLower;
         typedef seqan::ModifiedString<TInnerModifiedString, TModViewLower> TOuterModifiedString;
-        
+
         TString original = "CGAT";
         TInfix origInfix = infix(original, 1, 3);
         TOuterModifiedString outer(origInfix);
@@ -433,9 +470,88 @@ SEQAN_DEFINE_TEST(test_modifier_minimal)
 
     TString original = "The QUICK brown fox.";
     TInnerModifiedString inner(original);
+
     // static_cast<typename seqan::Parameter_<TString>::Type *>(seqan::Nothing());  // #=> non-const reference
     // static_cast<typename TInnerModifiedString::THostPointer_ *>(seqan::Nothing());  // #=> const pointer
     // static_cast<typename seqan::Pointer_<TString>::Type *>(seqan::Nothing());
 }
+
+SEQAN_DEFINE_TEST(test_modifier_reverse_back_front)
+{
+    using namespace seqan;
+
+    {
+        typedef CharString TString;
+        typedef ModifiedString<TString, ModReverse> TInnerModifiedString;
+        typedef typename Iterator<TInnerModifiedString, Standard>::Type TIt;
+
+        TString original = "The QUICK brown fox.";
+        TInnerModifiedString inner(original);
+
+        TIt it = begin(inner, Standard());
+        SEQAN_ASSERT_EQ(*it, '.');
+        SEQAN_ASSERT_EQ((*begin(inner, Standard())), '.');
+        it = end(inner, Standard());
+        --it;
+        SEQAN_ASSERT_EQ(*it, 'T');
+
+        SEQAN_ASSERT_EQ(front(inner), '.');
+        SEQAN_ASSERT_EQ(back(inner), 'T');
+    }
+    {
+        typedef CharString const TString;
+        typedef ModifiedString<TString, ModReverse> TInnerModifiedString;
+        typedef typename Iterator<TInnerModifiedString, Standard>::Type TIt;
+
+        TString original = "The QUICK brown fox.";
+        TInnerModifiedString inner(original);
+
+        TIt it = begin(inner, Standard());
+        SEQAN_ASSERT_EQ(*it, '.');
+        SEQAN_ASSERT_EQ((*begin(inner, Standard())), '.');
+        it = end(inner, Standard());
+        --it;
+        SEQAN_ASSERT_EQ(*it, 'T');
+
+        SEQAN_ASSERT_EQ(front(inner), '.');
+        SEQAN_ASSERT_EQ(back(inner), 'T');
+    }
+}
+
+SEQAN_DEFINE_TEST(test_modifier_reverse_iterator_metafunctions)
+{
+    using namespace seqan;
+
+    typedef ModifiedIterator<CharString, ModReverse> TModifiedIterator;
+
+    {
+        typedef char TExpected;
+        typedef Value<TModifiedIterator>::Type TResult;
+        bool res = IsSameType<TExpected, TResult>::VALUE;
+        SEQAN_ASSERT(res);
+        #ifdef SEQAN_CXX11_STANDARD
+        static_assert(std::is_same<TExpected, TResult>::value, "Different type expected.");
+        #endif
+    }
+    {
+        typedef char const & TExpected;
+        typedef GetValue<TModifiedIterator>::Type TResult;
+        bool res = IsSameType<TExpected, TResult>::VALUE;
+        SEQAN_ASSERT(res);
+        #ifdef SEQAN_CXX11_STANDARD
+        static_assert(std::is_same<TExpected, TResult>::value, "Different type expected.");
+        #endif
+    }
+    {
+        typedef char & TExpected;
+        typedef Reference<TModifiedIterator>::Type TResult;
+        bool res = IsSameType<TExpected, TResult>::VALUE;
+        #ifdef SEQAN_CXX11_STANDARD
+        static_assert(std::is_same<TExpected, TResult>::value, "Different type expected.");
+        #endif
+        SEQAN_ASSERT(res);
+    }
+}
+
 
 #endif // #ifndef SEQAN_TESTS_MODIFIER_TEST_MODIFIER_STRING_H_

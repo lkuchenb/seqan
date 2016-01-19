@@ -154,7 +154,7 @@ public:
 
     template <typename TContainer_>
     SEQAN_FUNC_ENABLE_IF(IsSameType<TContainer, TContainer_ const>, Iter &)
-    SEQAN_HOST_DEVICE 
+    SEQAN_HOST_DEVICE
     operator=(Iter<TContainer_, AdaptorIterator<TIterator, TSpec> > const & other_)
     {
         data_container = other_.data_container;
@@ -167,7 +167,7 @@ public:
     // ------------------------------------------------------------------------
 
     // For chaining behaviour of operator->(), see http://stackoverflow.com/a/8782794/84349
-    
+
     SEQAN_HOST_DEVICE
     TIterator &
     operator->()
@@ -725,20 +725,12 @@ operator-=(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > & left,
 // Function atEnd()
 // ----------------------------------------------------------------------------
 
-//template <typename TContainer, typename TIterator, typename TSpec>
-//inline SEQAN_HOST_DEVICE bool
-//atEnd(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > & me)
-//{
-//    SEQAN_CHECKPOINT;
-//    return atEnd(me, container(me));
-//}
-//
 template <typename TContainer, typename TIterator, typename TSpec>
 inline SEQAN_HOST_DEVICE bool
 atEnd(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > const & me)
 {
     SEQAN_CHECKPOINT;
-    return atEnd(me, container(me));
+    return atEnd(hostIterator(me), container(me));
 }
 
 // ----------------------------------------------------------------------------

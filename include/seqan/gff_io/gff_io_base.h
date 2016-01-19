@@ -89,7 +89,7 @@ struct MagicHeader<Gff, T> :
 template <typename T>
 struct FileExtensions<Gff, T>
 {
-    static char const * VALUE[2];	// default is one extension
+    static char const * VALUE[2];    // default is one extension
 };
 
 template <typename T>
@@ -102,7 +102,7 @@ char const * FileExtensions<Gff, T>::VALUE[2] =
 template <typename T>
 struct FileExtensions<Gtf, T>
 {
-    static char const * VALUE[1];	// default is one extension
+    static char const * VALUE[1];    // default is one extension
 };
 
 template <typename T>
@@ -349,9 +349,12 @@ void readRecord(GffRecord & record, CharString & buffer, TFwdIterator & iter)
 {
     IsNewline isNewline;
 
-    clear(record);
+    // skip commented lines
+    while (!atEnd(iter) && value(iter) == '#')
+        skipLine(iter);
 
-    skipUntil(iter, NotFunctor<OrFunctor<EqualsChar<'#'>, IsWhitespace> >());  //skip commments and empty lines
+    clear(record);
+    skipUntil(iter, NotFunctor<IsWhitespace>());  //skip empty lines
 
     // read column 1: seqid
     readUntil(record.ref, iter, OrFunctor<IsTab, AssertFunctor<NotFunctor<IsNewline>, ParseError, Gff> >());

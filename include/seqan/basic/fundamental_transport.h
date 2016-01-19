@@ -46,6 +46,12 @@ namespace seqan {
 // Forwards
 // ============================================================================
 
+template <typename T>
+struct Is;
+
+template <typename T>
+struct StlContainerConcept;
+
 template <typename TDest, typename TSource>
 void assignValue(TDest &, TSource const &);
 
@@ -61,10 +67,10 @@ void assignValue(TDest &, TSource const &);
  * @mfn HasMoveConstructor
  * @headerfile <seqan/basic.h>
  * @brief Query whether a class has a move constructor.
- * 
+ *
  * @signature HasMoveConstructor<T>::Type;
  * @signature HasMoveConstructor<T>::VALUE;
- * 
+ *
  * @tparam T Type to query for availability of move constructor.
  */
 
@@ -97,7 +103,7 @@ struct HasMoveConstructor
  */
 
 template <typename TTarget, typename TSource>
-inline void
+inline SEQAN_FUNC_DISABLE_IF(Is<StlContainerConcept<TTarget> >)
 assign(TTarget & target,
        TSource & source)
 {
@@ -106,7 +112,7 @@ assign(TTarget & target,
 }
 
 template <typename TTarget, typename TSource>
-inline void
+inline SEQAN_FUNC_DISABLE_IF(Is<StlContainerConcept<TTarget> >)
 assign(TTarget & target,
        TSource const & source)
 {

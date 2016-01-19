@@ -94,11 +94,11 @@ struct Position<BamTagsDict>
  *
  * @section Example
  *
- * @include demos/bam_io/bam_tags_dict.cpp
+ * @include demos/dox/bam_io/bam_tags_dict.cpp
  *
  * Output is:
  *
- * @include demos/bam_io/bam_tags_dict.cpp.stdout
+ * @include demos/dox/bam_io/bam_tags_dict.cpp.stdout
  *
  * @see getBamTypeSize
  * @see getBamTypeChar
@@ -202,12 +202,12 @@ struct GetBamTypeSizeHelper_
 {
     int     &resultSize;
     char    typeC;
-    
+
     GetBamTypeSizeHelper_(int &resultSize, char typeC) :
         resultSize(resultSize),
         typeC(typeC)
     {}
-    
+
     template <typename Type>
     bool operator() (Type) const
     {
@@ -324,12 +324,21 @@ _dataHost(BamTagsDict const & bamTags)
 // Function setHost()
 // ----------------------------------------------------------------------------
 
+#ifdef SEQAN_CXX11_STANDARD
+template <typename THost>
+inline void
+setHost(BamTagsDict & me, THost && host_)
+{
+    setValue(_dataHost(me), std::forward<THost>(host_));
+    clear(me._positions);
+}
+#else
 template <typename THost>
 inline void
 setHost(BamTagsDict & me, THost & host_)
 {
     SEQAN_CHECKPOINT;
-	setValue(_dataHost(me), host_);
+    setValue(_dataHost(me), host_);
     clear(me._positions);
 }
 
@@ -338,10 +347,10 @@ inline void
 setHost(BamTagsDict & me, THost const & host_)
 {
     SEQAN_CHECKPOINT;
-	setValue(_dataHost(me), host_);
+    setValue(_dataHost(me), host_);
     clear(me._positions);
 }
-
+#endif  // SEQAN_CXX11_STANDARD
 // ----------------------------------------------------------------------------
 // Function length()
 // ----------------------------------------------------------------------------
@@ -472,13 +481,13 @@ struct ExtractTagValueHelper_
     TResultType &result;
     TIter rawIter;
     char typeC;
-    
+
     ExtractTagValueHelper_(TResultType &result, char typeC, TIter rawIter) :
         result(result),
         rawIter(rawIter),
         typeC(typeC)
     {}
-    
+
     template <typename Type>
     bool operator() (Type) const
     {
@@ -497,7 +506,7 @@ struct ExtractTagValueHelper_
 };
 
 template <typename TResultValue, typename TId>
-SEQAN_FUNC_ENABLE_IF(Is<IntegerConcept<TResultValue> >, bool)
+SEQAN_FUNC_ENABLE_IF(Is<NumberConcept<TResultValue> >, bool)
 extractTagValue(TResultValue & val, BamTagsDict const & tags, TId id)
 {
     typedef Infix<Host<BamTagsDict const>::Type>::Type TInfix;
@@ -510,7 +519,7 @@ extractTagValue(TResultValue & val, BamTagsDict const & tags, TId id)
     TIter it = begin(inf, Standard()) + 2;
     char typeC = getValue(it++);
     ExtractTagValueHelper_<TResultValue, TIter> func(val, typeC, it);
-    
+
     return tagApply(func, BamTagTypes());
 }
 
@@ -646,13 +655,13 @@ struct ToBamTagValueHelper_
     TBamValueSequence &result;
     TValue val;
     char typeC;
-    
+
     ToBamTagValueHelper_(TBamValueSequence &result, char typeC, TValue val) :
         result(result),
         val(val),
         typeC(typeC)
     {}
-    
+
     template <typename Type>
     bool operator() (Type) const
     {
@@ -672,7 +681,7 @@ struct ToBamTagValueHelper_
 
 // Convert "atomic" value to BAM tag.  Return whether val was atomic.
 template <typename TBamValueSequence, typename TValue>
-SEQAN_FUNC_ENABLE_IF(Is<IntegerConcept<TValue> >, bool)
+SEQAN_FUNC_ENABLE_IF(Is<NumberConcept<TValue> >, bool)
 _toBamTagValue(TBamValueSequence & result, TValue const & val, char typeC)
 {
     if (typeC == 'Z')
@@ -693,7 +702,7 @@ _toBamTagValue(TBamValueSequence & result, TValue const & val, char typeC)
 {
     if (typeC != 'Z')
         return false;
-    
+
     appendValue(result, typeC);
     append(result, val);
     appendValue(result, '\0');
@@ -822,7 +831,7 @@ appendTagValue(TDictOrString & tags, TKey const & key, TValue const & val)
  */
 
 template <typename TKey>
-inline SEQAN_FUNC_DISABLE_IF(Is<IntegerConcept<TKey> >, bool)
+inline SEQAN_FUNC_DISABLE_IF(Is<NumberConcept<TKey> >, bool)
 eraseTag(BamTagsDict & tags, TKey const & key)
 {
     if (!hasIndex(tags))
@@ -838,7 +847,7 @@ eraseTag(BamTagsDict & tags, TKey const & key)
 }
 
 template <typename TId>
-inline SEQAN_FUNC_ENABLE_IF(Is<IntegerConcept<TId> >, bool)
+inline SEQAN_FUNC_ENABLE_IF(Is<NumberConcept<TId> >, bool)
 eraseTag(BamTagsDict & tags, TId const & id)
 {
     typedef typename Iterator<String<typename BamTagsDict::TPos>, Standard>::Type TIter;

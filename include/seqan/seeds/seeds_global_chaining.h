@@ -82,11 +82,11 @@ typedef Tag<SparseChaining_> SparseChaining;
  * @endlink is built and filled with @link SimpleSeed @endlink object.  Then, a @link String @endlink of @link
  * SimpleSeed @endlink objects is defined and filled using the <tt>chainSeedsGlobally()</tt> function.
  *
- * @include demos/seeds/seeds_chaining.cpp
+ * @include demos/dox/seeds/seeds_chaining.cpp
  *
  * The output is as follows.  Only the first and last seeds are written to <tt>std::cout</tt>.
  *
- * @include demos/seeds/seeds_chaining.cpp.stdout
+ * @include demos/dox/seeds/seeds_chaining.cpp.stdout
  *
  * @section References
  *
@@ -177,7 +177,7 @@ chainSeedsGlobally(
             // *first* one that compares greater than the reference
             // one.  Searching for the this one and decrementing the
             // result iterator gives the desired result.
-            TIntermediateSolution referenceSolution(beginPositionV(seedK), 0, maxValue<unsigned>());
+            TIntermediateSolution referenceSolution(beginPositionV(seedK), maxValue<TSize>(), maxValue<unsigned>());
             // std::cout << "    intermediateSolutions.upper_bound(" << beginPositionV(seedK) << ")" << std::endl;
             TIntermediateSolutionsIterator itJ = intermediateSolutions.upper_bound(referenceSolution);
             if (itJ == intermediateSolutions.begin()) {
@@ -233,7 +233,7 @@ chainSeedsGlobally(
                     intermediateSolutions.insert(sol);
                 }
             }
-            
+
             // Delete all intermediate solutions where end1 >= end1 of k and have a lower quality than k.
             TIntermediateSolutionsIterator itDel = intermediateSolutions.upper_bound(referenceSolution);
             TIntermediateSolutionsIterator itDelEnd = intermediateSolutions.end();

@@ -483,8 +483,8 @@ _parseOptions(ArgumentParser & parser, TOptions & options)
 void _setParser(ArgumentParser & parser)
 {
     setShortDescription(parser, "the SwifT Exact LocaL AligneR");
-    setDate(parser, "October 2012");
-    setVersion(parser, "1.3");
+    setDate(parser, SEQAN_DATE);
+    setVersion(parser, SEQAN_APP_VERSION " [" SEQAN_REVISION "]");
     setCategory(parser, "Local Alignment");
 
     addUsageLine(parser, "[\\fIOPTIONS\\fP] <\\fIFASTA FILE 1\\fP> <\\fIFASTA FILE 2\\fP>");
@@ -581,6 +581,8 @@ void _setParser(ArgumentParser & parser)
 
 // TODO(holtgrew): Move this into a SeqAn misc module.
 
+// not supported anymore in vc2015
+// https://msdn.microsoft.com/en-us/library/bb531344.aspx
 class ScientificNotationExponentOutputNormalizer
 {
 public:
@@ -590,19 +592,22 @@ public:
         _oldExponentFormat(0)
     {
 #ifdef PLATFORM_WINDOWS_VS
+#if _MSC_VER < 1900
         // Set scientific format to print two places.
         unsigned _oldExponentFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
 #endif
     }
 
     ~ScientificNotationExponentOutputNormalizer()
     {
 #ifdef PLATFORM_WINDOWS_VS
+#if _MSC_VER < 1900
         // Enable old exponent format.
         _set_output_format(_oldExponentFormat);
 #endif
+#endif
     }
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////

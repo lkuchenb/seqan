@@ -48,9 +48,9 @@ namespace seqan {
 // ----------------------------------------------------------------------------
 
 template <typename TIterator, typename TValue, typename TParallelTag>
-inline void 
+inline void
 arrayFill(TIterator begin_,
-          TIterator end_, 
+          TIterator end_,
           TValue const & value,
           Tag<TParallelTag> parallelTag)
 {
@@ -123,9 +123,9 @@ sum(TSequence const &seq)
  * @fn partialSum
  * @headerfile <seqan/parallel.h>
  * @brief Computes the partial sum of a sequence.
- * 
+ *
  * @signature TValue partialSum(target, source[, parallelTag]);
- * 
+ *
  * @param[in]  source      A sequence of elements that should be partially summed.  The sequence alphabet must support
  *                         the <tt>operator+</tt> and conversion from zero, the type is <tt>TSource</tt>.
  * @param[in]  parallelTag Tag to enable/disable parallelism, one of <tt>Serial</tt>, <tt>Parallel</tt>, default is
@@ -133,10 +133,10 @@ sum(TSequence const &seq)
  * @param[out] target      The resulting partial sum.  This sequence will have the same length as <tt>source</tt> and
  *                         contains at position <tt>i</tt> the sum of elements <tt>source[0]</tt>, <tt>source[1]</tt>,
  *                         ..., <tt>source[i]</tt>.
- * 
+ *
  * @return TValue The sum of all elements in <tt>source</tt>.  The returned value equals the last value in target.
  *                <tt>TValue</tt> is <tt>Value&lt;TSource&gt;::Type</tt>.
- * 
+ *
  * @see sum
  */
 
@@ -148,7 +148,7 @@ partialSum(TTarget &target, TSource const &source, Tag<TParallelTag> parallelTag
     typedef typename Size<TSource>::Type TSize;
     typedef typename Iterator<TSource const, Standard>::Type TConstIterator;
     typedef typename Iterator<TTarget, Standard>::Type TIterator;
-    
+
     resize(target, length(source), Exact());
     if (empty(target))
         return 0;
@@ -185,7 +185,7 @@ partialSum(TTarget &target, TSource const &source, Tag<TParallelTag> parallelTag
         }
         localSums[job] = sum;
     }
-    
+
     return back(localSums);
 }
 
@@ -342,6 +342,52 @@ countIf(TContainer const & c, TUnaryPredicate p, Tag<TParallelTag> const & /* ta
 }
 
 // ----------------------------------------------------------------------------
+// Function removeIf()
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TUnaryPredicate, typename TParallelTag>
+inline void
+removeIf(TContainer & c, TUnaryPredicate p, Tag<TParallelTag> const & /* tag */)
+{
+    typename Iterator<TContainer, Standard>::Type newEnd = std::remove_if(begin(c, Standard()), end(c, Standard()), p);
+    resize(c, position(newEnd, c), Exact());
+}
+
+// ----------------------------------------------------------------------------
+// Function accumulate()
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TValue, typename TParallelTag>
+inline typename Value<TContainer>::Type
+accumulate(TContainer const & c, TValue const & v, Tag<TParallelTag> const & /* tag */)
+{
+    return std::accumulate(begin(c, Standard()), end(c, Standard()), v);
+}
+
+// ----------------------------------------------------------------------------
+// Function innerProduct()
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TValue, typename TParallelTag>
+inline typename Value<TContainer>::Type
+innerProduct(TContainer const & c, TValue const & v, Tag<TParallelTag> const & /* tag */)
+{
+    return std::inner_product(begin(c, Standard()), end(c, Standard()), begin(c, Standard()), v);
+}
+
+// ----------------------------------------------------------------------------
+// Function nthElement()
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TPosition, typename TParallelTag>
+inline typename Value<TContainer>::Type
+nthElement(TContainer & c, TPosition p, Tag<TParallelTag> const & /* tag */)
+{
+    std::nth_element(begin(c, Standard()), begin(c, Standard()) + p, end(c, Standard()));
+    return getValue(c, p);
+}
+
+// ----------------------------------------------------------------------------
 // Function maxElement()
 // ----------------------------------------------------------------------------
 
@@ -386,13 +432,13 @@ minElement(TContainer const & c, Tag<TParallelTag> const & /* tag */)
 // ----------------------------------------------------------------------------
 
 template <typename TContainer, typename TBinaryPredicate, typename TParallelTag>
-inline void sort(TContainer & c, TBinaryPredicate p, Tag<TParallelTag> const & /* tag */)
+inline void sort(TContainer SEQAN_FORWARD_ARG c, TBinaryPredicate p, Tag<TParallelTag> const & /* tag */)
 {
     return std::sort(begin(c, Standard()), end(c, Standard()), p);
 }
 
 template <typename TContainer, typename TParallelTag>
-inline void sort(TContainer & c, Tag<TParallelTag> const & /* tag */)
+inline void sort(TContainer SEQAN_FORWARD_ARG c, Tag<TParallelTag> const & /* tag */)
 {
     return std::sort(begin(c, Standard()), end(c, Standard()));
 }
@@ -402,13 +448,13 @@ inline void sort(TContainer & c, Tag<TParallelTag> const & /* tag */)
 // ----------------------------------------------------------------------------
 
 template <typename TContainer, typename TBinaryPredicate, typename TParallelTag>
-inline void stableSort(TContainer & c, TBinaryPredicate p, Tag<TParallelTag> const & /* tag */)
+inline void stableSort(TContainer SEQAN_FORWARD_ARG c, TBinaryPredicate p, Tag<TParallelTag> const & /* tag */)
 {
     return std::stable_sort(begin(c, Standard()), end(c, Standard()), p);
 }
 
 template <typename TContainer, typename TParallelTag>
-inline void stableSort(TContainer & c, Tag<TParallelTag> const & /* tag */)
+inline void stableSort(TContainer SEQAN_FORWARD_ARG c, Tag<TParallelTag> const & /* tag */)
 {
     return std::stable_sort(begin(c, Standard()), end(c, Standard()));
 }
@@ -480,6 +526,52 @@ countIf(TContainer const & c, TUnaryPredicate p, Parallel)
 }
 
 // ----------------------------------------------------------------------------
+// Function removeIf(Parallel)
+// ----------------------------------------------------------------------------
+
+//template <typename TContainer, typename TUnaryPredicate>
+//inline void
+//removeIf(TContainer & c, TUnaryPredicate p, Parallel)
+//{
+//    typename Iterator<TContainer, Standard>::Type newEnd = __gnu_parallel::remove_if(begin(c, Standard()), end(c, Standard()), p);
+//    resize(c, position(newEnd, c), Exact());
+//}
+
+// ----------------------------------------------------------------------------
+// Function accumulate(Parallel)
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TValue>
+inline typename Value<TContainer>::Type
+accumulate(TContainer const & c, TValue const & v, Parallel)
+{
+    return __gnu_parallel::accumulate(begin(c, Standard()), end(c, Standard()), v);
+}
+
+// ----------------------------------------------------------------------------
+// Function innerProduct(Parallel)
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TValue>
+inline typename Value<TContainer>::Type
+innerProduct(TContainer const & c, TValue const & v, Parallel)
+{
+    return __gnu_parallel::inner_product(begin(c, Standard()), end(c, Standard()), begin(c, Standard()), v);
+}
+
+// ----------------------------------------------------------------------------
+// Function nthElement(Parallel)
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TPosition>
+inline typename Value<TContainer>::Type
+nthElement(TContainer & c, TPosition p, Parallel)
+{
+    __gnu_parallel::nth_element(begin(c, Standard()), begin(c, Standard()) + p, end(c, Standard()));
+    return getValue(c, p);
+}
+
+// ----------------------------------------------------------------------------
 // Function maxElement(Parallel)
 // ----------------------------------------------------------------------------
 
@@ -524,13 +616,13 @@ minElement(TContainer const & c, Parallel)
 // ----------------------------------------------------------------------------
 
 template <typename TContainer, typename TBinaryPredicate>
-inline void sort(TContainer & c, TBinaryPredicate p, Parallel)
+inline void sort(TContainer SEQAN_FORWARD_ARG c, TBinaryPredicate p, Parallel)
 {
     return __gnu_parallel::sort(begin(c, Standard()), end(c, Standard()), p);
 }
 
 template <typename TContainer>
-inline void sort(TContainer & c, Parallel)
+inline void sort(TContainer SEQAN_FORWARD_ARG c, Parallel)
 {
     return __gnu_parallel::sort(begin(c, Standard()), end(c, Standard()));
 }
@@ -540,13 +632,13 @@ inline void sort(TContainer & c, Parallel)
 // ----------------------------------------------------------------------------
 
 template <typename TContainer, typename TBinaryPredicate>
-inline void stableSort(TContainer & c, TBinaryPredicate p, Parallel)
+inline void stableSort(TContainer SEQAN_FORWARD_ARG c, TBinaryPredicate p, Parallel)
 {
     return __gnu_parallel::stable_sort(begin(c, Standard()), end(c, Standard()), p);
 }
 
 template <typename TContainer>
-inline void stableSort(TContainer & c, Parallel)
+inline void stableSort(TContainer SEQAN_FORWARD_ARG c, Parallel)
 {
     return __gnu_parallel::stable_sort(begin(c, Standard()), end(c, Standard()));
 }
@@ -634,6 +726,50 @@ countIf(TContainer const & c, TUnaryPredicate p)
 }
 
 // ----------------------------------------------------------------------------
+// Function removeIf()
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TUnaryPredicate>
+inline void
+removeIf(TContainer & c, TUnaryPredicate p)
+{
+    removeIf(c, p, Serial());
+}
+
+// ----------------------------------------------------------------------------
+// Function accumulate()
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TValue>
+inline typename Value<TContainer>::Type
+accumulate(TContainer const & c, TValue const & v)
+{
+    return accumulate(c, v, Serial());
+}
+
+// ----------------------------------------------------------------------------
+// Function innerProduct()
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TValue>
+inline typename Value<TContainer>::Type
+innerProduct(TContainer const & c, TValue const & v)
+{
+    return innerProduct(c, v, Serial());
+}
+
+// ----------------------------------------------------------------------------
+// Function nthElement()
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TPosition>
+inline typename Value<TContainer>::Type
+nthElement(TContainer & c, TPosition p)
+{
+    return nthElement(c, p, Serial());
+}
+
+// ----------------------------------------------------------------------------
 // Function maxElement()
 // ----------------------------------------------------------------------------
 
@@ -674,13 +810,13 @@ minElement(TContainer const & c)
 // ----------------------------------------------------------------------------
 
 template <typename TContainer, typename TBinaryPredicate>
-inline void sort(TContainer & c, TBinaryPredicate p)
+inline void sort(TContainer SEQAN_FORWARD_ARG c, TBinaryPredicate p)
 {
     sort(c, p, Serial());
 }
 
 template <typename TContainer>
-inline void sort(TContainer & c)
+inline void sort(TContainer SEQAN_FORWARD_ARG c)
 {
     sort(c, Serial());
 }
@@ -690,13 +826,13 @@ inline void sort(TContainer & c)
 // ----------------------------------------------------------------------------
 
 template <typename TContainer, typename TBinaryPredicate>
-inline void stableSort(TContainer & c, TBinaryPredicate p)
+inline void stableSort(TContainer SEQAN_FORWARD_ARG c, TBinaryPredicate p)
 {
     stableSort(c, p, Serial());
 }
 
 template <typename TContainer>
-inline void stableSort(TContainer & c)
+inline void stableSort(TContainer SEQAN_FORWARD_ARG c)
 {
     stableSort(c, Serial());
 }

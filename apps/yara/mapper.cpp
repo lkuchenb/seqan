@@ -45,6 +45,12 @@ struct Options;
 // ============================================================================
 
 // ----------------------------------------------------------------------------
+// STL headers
+// ----------------------------------------------------------------------------
+
+#include <random>
+
+// ----------------------------------------------------------------------------
 // SeqAn headers
 // ----------------------------------------------------------------------------
 
@@ -80,7 +86,6 @@ struct Options;
 #include "mapper_filter.h"
 #include "mapper_extender.h"
 #include "mapper_verifier.h"
-#include "mapper_selector.h"
 #include "mapper_aligner.h"
 #include "mapper_writer.h"
 #include "mapper.h"
@@ -157,9 +162,7 @@ void setupArgumentParser(ArgumentParser & parser, Options const & options)
     setDefaultValue(parser, "error-rate", 100.0 * options.errorRate);
 
     addOption(parser, ArgParseOption("s", "strata-rate", "Report suboptimal alignments within this percentual number \
-                                                          of errors from the optimal alignment. Note: Either specify \
-                                                          --strata-rate much smaller than --error-rate, or better use \
-                                                          the option --all to consider all alignments within error-rate.",
+                                                          of errors from the optimal alignment.",
                                                           ArgParseOption::INTEGER));
     setMinValue(parser, "strata-rate", "0");
     setMaxValue(parser, "strata-rate", "10");
@@ -167,6 +170,7 @@ void setupArgumentParser(ArgumentParser & parser, Options const & options)
 
     addOption(parser, ArgParseOption("a", "all", "Report all alignments within --error-rate. Default: report alignments \
                                                   within --strata-rate."));
+    hideOption(getOption(parser, "all"));
 
     addOption(parser, ArgParseOption("q", "quick", "Be quicker by loosely mapping a few very repetitive reads."));
     hideOption(getOption(parser, "quick"));
@@ -174,37 +178,39 @@ void setupArgumentParser(ArgumentParser & parser, Options const & options)
     // Setup paired-end mapping options.
     addSection(parser, "Paired-End / Mate-Pair Mapping Options");
 
-    addOption(parser, ArgParseOption("ll", "library-length", "Expected library length.", ArgParseOption::INTEGER));
-    setMinValue(parser, "library-length", "1");
-    setDefaultValue(parser, "library-length", options.libraryLength);
-
-    addOption(parser, ArgParseOption("le", "library-error", "Deviation from the expected library length.",
+    addOption(parser, ArgParseOption("ll", "library-length", "Expected library length. Default: autodetected.",
                                      ArgParseOption::INTEGER));
-    setMinValue(parser, "library-error", "0");
-    setDefaultValue(parser, "library-error", options.libraryError);
+    setMinValue(parser, "library-length", "1");
 
-    addOption(parser, ArgParseOption("lo", "library-orientation", "Expected orientation of the segments in the library.",
-                                     ArgParseOption::STRING));
-    setValidValues(parser, "library-orientation", options.libraryOrientationList);
-    setDefaultValue(parser, "library-orientation", options.libraryOrientationList[options.libraryOrientation]);
+    addOption(parser, ArgParseOption("le", "library-error", "Deviation from the expected library length. \
+                                            Default: autodetected.", ArgParseOption::INTEGER));
+    setMinValue(parser, "library-error", "0");
+
+//    addOption(parser, ArgParseOption("lo", "library-orientation", "Expected orientation of the segments in the library.",
+//                                     ArgParseOption::STRING));
+//    setValidValues(parser, "library-orientation", options.libraryOrientationList);
+//    setDefaultValue(parser, "library-orientation", options.libraryOrientationList[options.libraryOrientation]);
 
 //    addOption(parser, ArgParseOption("la", "anchor", "Anchor one read and verify its mate."));
 
     // Setup performance options.
     addSection(parser, "Performance Options");
 
-#ifdef _OPENMP
     addOption(parser, ArgParseOption("t", "threads", "Specify the number of threads to use.", ArgParseOption::INTEGER));
     setMinValue(parser, "threads", "1");
+#ifdef _OPENMP
     setMaxValue(parser, "threads", "2048");
-    setDefaultValue(parser, "threads", options.threadsCount);
+#else
+    setMaxValue(parser, "threads", "1");
 #endif
+    setDefaultValue(parser, "threads", options.threadsCount);
 
     addOption(parser, ArgParseOption("rb", "reads-batch", "Specify the number of reads to process in one batch.",
                                      ArgParseOption::INTEGER));
     setMinValue(parser, "reads-batch", "1000");
     setMaxValue(parser, "reads-batch", "1000000");
     setDefaultValue(parser, "reads-batch", options.readsCount);
+    hideOption(getOption(parser, "reads-batch"));
 }
 
 // ----------------------------------------------------------------------------
@@ -262,7 +268,7 @@ parseCommandLine(Options & options, ArgumentParser & parser, int argc, char cons
     getOptionValue(options.rabema, parser, "output-rabema");
 
     // Parse mapping options.
-        unsigned errorRate;
+    unsigned errorRate;
     if (getOptionValue(errorRate, parser, "error-rate"))
         options.errorRate = errorRate / 100.0;
 
@@ -281,12 +287,9 @@ parseCommandLine(Options & options, ArgumentParser & parser, int argc, char cons
     // Parse paired-end mapping options.
     getOptionValue(options.libraryLength, parser, "library-length");
     getOptionValue(options.libraryError, parser, "library-error");
-    getOptionValue(options.libraryOrientation, parser, "library-orientation", options.libraryOrientationList);
+//    getOptionValue(options.libraryOrientation, parser, "library-orientation", options.libraryOrientationList);
 
-#ifdef _OPENMP
     getOptionValue(options.threadsCount, parser, "threads");
-#endif
-
     getOptionValue(options.readsCount, parser, "reads-batch");
 
     if (isSet(parser, "verbose")) options.verbose = 1;
@@ -296,7 +299,7 @@ parseCommandLine(Options & options, ArgumentParser & parser, int argc, char cons
     options.version = getVersion(parser);
 
     // Get command line.
-    for (int i = 1; i < argc; i++)
+    for (int i = 0; i < argc; i++)
     {
         append(options.commandLine, argv[i]);
         appendValue(options.commandLine, ' ');

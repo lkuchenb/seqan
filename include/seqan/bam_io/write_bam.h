@@ -60,7 +60,7 @@ void write(TTarget & target,
     // Create text of header.
     for (unsigned i = 0; i < length(header); ++i)
         write(context.buffer, header[i], context, Sam());
-    
+
     // Note that we do not write out a null-character to terminate the header.  This would be valid by the SAM standard
     // but the samtools do not expect this and write out the '\0' when converting from BAM to SAM.
     // appendValue(context.buffer, '\0');
@@ -144,7 +144,7 @@ _writeBamRecord(TTarget & target,
     // bin_mq_nl
     unsigned l = 0;
     _getLengthInRef(l, record.cigar);
-    record.bin =_reg2Bin(record.beginPos, record.beginPos + l);
+    record.bin =_reg2Bin(record.beginPos, record.beginPos + std::max(1u, l));
 
     // Write fixed-size BamAlignmentRecordCore.
     appendRawPod(target, (BamAlignmentRecordCore &)record);
@@ -238,9 +238,14 @@ _writeBamRecordWrapper(TTarget & target,
 template <typename TTarget, typename TNameStore, typename TNameStoreCache, typename TStorageSpec>
 void write(TTarget & target,
            BamAlignmentRecord const & record,
-           BamIOContext<TNameStore, TNameStoreCache, TStorageSpec> & /* context */,
+           BamIOContext<TNameStore, TNameStoreCache, TStorageSpec> & context,
            Bam const & tag)
 {
+    // Check for valid IO Context.
+    SEQAN_ASSERT_LT_MSG(record.rID, static_cast<__int32>(length(contigNames(context))), "BAM IO Assertion: Unknown REF ID!");
+    SEQAN_ASSERT_LT_MSG(record.rNextId, static_cast<__int32>(length(contigNames(context))), "BAM IO Assertion: Unknown NEXT REF ID!");
+    ignoreUnusedVariableWarning(context);
+
     // Update internal lengths
     __uint32 size = updateLengths(record);
 

@@ -168,7 +168,7 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////
-/////////////////////////// IntervalTreeNode	///////////////////////////
+/////////////////////////// IntervalTreeNode    ///////////////////////////
 
 /*!
  * @defgroup IntervalTreeNodeTypeTags IntervalTree Node Types Tags
@@ -325,7 +325,7 @@ public:
  * The following example creates an integer interval tree with string keys.  This tree is quired for keys of intervals
  * that overlap the interval <tt>[550, 990)</tt>.
  *
- * @include demos/misc/interval_tree_example.cpp
+ * @include demos/dox/misc/interval_tree_example.cpp
  *
  * The resulting keys are:
  *
@@ -1086,7 +1086,7 @@ _createIntervalTree(TGraph & g, TPropertyMap & pm,
         ++it;
     }
 
-//	std::sort(begin(value(pm,knot).list1),end(value(pm,knot).list1),_less_compI1_ITree<typename Value<TList>::Type>);
+//    std::sort(begin(value(pm,knot).list1),end(value(pm,knot).list1),_less_compI1_ITree<typename Value<TList>::Type>);
     std::sort(begin(value(pm, knot).list2), end(value(pm, knot).list2), _greater_compI2_ITree<typename Value<TList>::Type>);
 
     // build subtree to the left
@@ -1163,7 +1163,7 @@ _createIntervalTree(TGraph & g, TPropertyMap & pm,
         ++it;
     }
 
-//	std::sort(begin(value(pm,knot).list1),end(value(pm,knot).list1),_less_compI1_ITree<typename Value<TList>::Type>);
+//    std::sort(begin(value(pm,knot).list1),end(value(pm,knot).list1),_less_compI1_ITree<typename Value<TList>::Type>);
     std::sort(begin(value(pm, knot).list2), end(value(pm, knot).list2), _greater_compI2_ITree<typename Value<TList>::Type>);
 
     // build subtree to the left

@@ -39,6 +39,7 @@
 
 #include <seqan/misc/terminal.h>
 #include <seqan/arg_parse/xml_support.h>
+#include <seqan/version.h>
 
 namespace seqan {
 
@@ -359,7 +360,7 @@ public:
     {
         std::ostream_iterator<char> out(stream);
         stream << '\n' << _toText("\\fB");
-        std::transform(begin(section._title), end(section._title), out, toupper);
+        std::transform(begin(section._title), end(section._title), out, static_cast < int(*)(int) > (toupper));
         stream << _toText("\\fP") << '\n';
     }
 
@@ -562,24 +563,24 @@ public:
  * @implements AssignableConcept
  * @headerfile <seqan/arg_parse.>
  * @brief Container for string documentation on a command line tool.
- * 
+ *
  * @signature class ToolDoc;
- * 
+ *
  * @section Remarks
- * 
+ *
  * This class is generally not used directly by the user but through @link ArgumentParser @endlink. It allows to store
  * and represent all information related to a command line tool that would normally go into a man page. It can be
  * printed to STL streams in different formats, currently plain text, HTML and man pages are supported.
- * 
+ *
  * You can also use basic formatting in text. This formatting is tailored to the usage on the command line. Use
  * <tt>\fB</tt> to start bold font, <tt>\fI</tt> to start italic font and <tt>\fP</tt> to use the previous font (of
  * course, use correct escaping of the backslash in C strings, so use <tt>"\\fB"</tt>, <tt>"\\fI"</tt>, and
  * <tt>"\\fP"</tt> in your code.
- * 
+ *
  * @section Examples
- * 
+ *
  * The following shows a brief example of how to use @link ToolDoc @endlink.
- * 
+ *
  * @code{.cpp}
  * ToolDoc doc;
  * setName(doc, "RazerS");
@@ -588,13 +589,13 @@ public:
  * setVersion(doc, "1.0");
  * setCategory(doc, "Read Mapping");
  * setManTitle(doc, "SeqAn Apps Reference Manual");
- *  
+ *
  * addSection(doc, "Synopsis");
  * addText(doc, "\\fBrazers\\fP [\\fIOPTIONS\\fP] \\fIREFERENCE\\fP \\fIREADS\\fP", false);
  * addText(doc,
  *         "\\fBrazers\\fP [\\fIOPTIONS\\fP] \\fIREFERENCE\\fP \\fILEFT_READS\\fP "
  *         "\\fIRIGHT_READS\\fP", false);
- *  
+ *
  * addSection(doc, "Description");
  * addText(doc,
  *         "RazerS is a read mapper with controllable, sensitivity.  This "
@@ -603,14 +604,14 @@ public:
  *         "performance.");
  * addText(doc,
  *         "What's special about RazerS is that you can control the sensitivity.");
- *  
+ *
  * addSection(doc, "Options");
  * addSubSection(doc, "Main Options");
  * addListItem(doc, "\\fB-id\\fP, \\fB--indels\\fP",
  *             "Enable mapping with indels enabled.");
  * addListItem(doc, "\\fB-i\\fP, \\fB--identity\\fP \\fIIDENTITY\\fP",
  *             "Set minimal identity of matches to find.");
- *  
+ *
  * print(std::cout, doc, "text");
  * @endcode
  *
@@ -622,7 +623,7 @@ public:
 /*!
  * @fn ToolDoc::ToolDoc
  * @brief Constructor
- * 
+ *
  * @signature ToolDoc::ToolDoc()
  */
 
@@ -633,6 +634,9 @@ public:
     CharString _shortDescription;
     CharString _date;
     CharString _version;
+    CharString _shortCopyright;
+    CharString _longCopyright;
+    CharString _citation;
     CharString _manTitle;
     CharString _category;
     unsigned _manSection;
@@ -646,7 +650,8 @@ public:
 
     ToolDoc(ToolDoc const & toolDoc) :
         _name(toolDoc._name), _shortDescription(toolDoc._shortDescription),
-        _date(toolDoc._date), _version(toolDoc._version), _manTitle(toolDoc._manTitle),
+        _date(toolDoc._date), _version(toolDoc._version), _shortCopyright(toolDoc._shortCopyright),
+        _longCopyright(toolDoc._longCopyright), _citation(toolDoc._citation), _manTitle(toolDoc._manTitle),
         _category(toolDoc._category), _manSection(1)
     {
         append(*this, toolDoc);
@@ -712,9 +717,9 @@ public:
  * @fn ToolDoc#append
  * @headerfile <seqan/arg_parse.h>
  * @brief Append two @link ToolDoc @endlink objects.
- * 
+ *
  * @signature void append(a, b);
- * 
+ *
  * @param[in,out] a This object is updated
  * @param[in]     b This object is appended to <tt>b</tt>.
  */
@@ -918,7 +923,7 @@ inline CharString const & getDate(ToolDoc const & doc)
  * @headerfile <seqan/arg_parse.h>
  * @brief Set the tool version string.
  *
- * @signature void setName(toolDoc, str);
+ * @signature void setVersion(toolDoc, str);
  *
  * @param[in,out] toolDoc The ToolDoc object to the set the version string for.
  * @param[in]     str     The version string of the tool (@link CharString @endlink).
@@ -949,6 +954,130 @@ inline CharString const & getVersion(ToolDoc const & doc)
 {
     return doc._version;
 }
+
+// --------------------------------------------------------------------------
+// Function setShortCopyright()                                              ToolDoc
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn ToolDoc#setShortCopyright
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Set the tool short copyright string.
+ *
+ * @signature void setShortCopyright(toolDoc, str);
+ *
+ * @param[in,out] toolDoc The ToolDoc object to the set the short copyright string for.
+ * @param[in]     str     The short copyright string of the tool (@link CharString @endlink).
+ */
+
+inline void setShortCopyright(ToolDoc & doc, CharString const & shortCopyright)
+{
+    doc._shortCopyright = shortCopyright;
+}
+
+// --------------------------------------------------------------------------
+// Function getShortCopyright()                                              ToolDoc
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn ToolDoc#getShortCopyright
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Get the tool short copyright string.
+ *
+ * @signature CharString getShortCopyright(toolDoc);
+ *
+ * @param[in] toolDoc The ToolDoc object to the get the short copyright string.
+ *
+ * @return CharString Resulting short copyright string (@link CharString @endlink).
+ */
+
+inline CharString const & getShortCopyright(ToolDoc const & doc)
+{
+    return doc._shortCopyright;
+}
+
+// --------------------------------------------------------------------------
+// Function setLongCopyright()                                              ToolDoc
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn ToolDoc#setLongCopyright
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Set the tool long copyright string.
+ *
+ * @signature void setLongCopyright(toolDoc, str);
+ *
+ * @param[in,out] toolDoc The ToolDoc object to the set the long copyright string for.
+ * @param[in]     str     The long copyright string of the tool (@link CharString @endlink).
+ */
+
+inline void setLongCopyright(ToolDoc & doc, CharString const & longCopyright)
+{
+    doc._longCopyright = longCopyright;
+}
+
+// --------------------------------------------------------------------------
+// Function getLongCopyright()                                              ToolDoc
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn ToolDoc#getLongCopyright
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Get the tool long copyright string.
+ *
+ * @signature CharString getLongCopyright(toolDoc);
+ *
+ * @param[in] toolDoc The ToolDoc object to the get the long copyright string.
+ *
+ * @return CharString Resulting long copyright string (@link CharString @endlink).
+ */
+
+inline CharString const & getLongCopyright(ToolDoc const & doc)
+{
+    return doc._longCopyright;
+}
+
+// --------------------------------------------------------------------------
+// Function setCitation()                                              ToolDoc
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn ToolDoc#setCitation
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Set the tool citation string.
+ *
+ * @signature void setCitation(toolDoc, str);
+ *
+ * @param[in,out] toolDoc The ToolDoc object to the set the citation string for.
+ * @param[in]     str     The citation string of the tool (@link CharString @endlink).
+ */
+
+inline void setCitation(ToolDoc & doc, CharString const & citation)
+{
+    doc._citation = citation;
+}
+
+// --------------------------------------------------------------------------
+// Function getCitation()                                              ToolDoc
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn ToolDoc#getCitation
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Get the tool citation string.
+ *
+ * @signature CharString getCitation(toolDoc);
+ *
+ * @param[in] toolDoc The ToolDoc object to the get the citation string.
+ *
+ * @return CharString Resulting citation string (@link CharString @endlink).
+ */
+
+inline CharString const & getCitation(ToolDoc const & doc)
+{
+    return doc._citation;
+}
+
 
 // --------------------------------------------------------------------------
 // Function setManTitle()                                             ToolDoc
@@ -992,7 +1121,7 @@ inline CharString const & getManTitle(ToolDoc & doc)
 }
 
 // --------------------------------------------------------------------------
-// Function addSection()                                              ToolDoc
+// Function addSection()ToolDoc
 // --------------------------------------------------------------------------
 
 /*!
@@ -1205,8 +1334,33 @@ void HtmlToolDocPrinter_::print(std::ostream & stream, ToolDoc const & doc)
 
     // Print version and date.
     stream << "<h2>Version</h2>\n"
-           << "<p>Last update: " << _toHtml(doc._date) << ", " << doc._name
-           << " version: " << doc._version << "</p>\n";
+           << "<strong>Last update:</strong> " << _toHtml(doc._date) << "<br>\n<strong>"
+           << doc._name << " version:</strong> " << doc._version << "<br>\n"
+           << "<strong>SeqAn version:</strong> " << SEQAN_VERSION_MAJOR << '.' <<  SEQAN_VERSION_MINOR << '.'
+           << SEQAN_VERSION_PATCH;
+    if (SEQAN_VERSION_PRE_RELEASE != 0)
+        stream << "-pre" << SEQAN_VERSION_PRE_RELEASE;
+    stream << "<br>\n";
+
+    // Print legal stuff
+    if ((!empty(doc._shortCopyright)) || (!empty(doc._longCopyright)) || (!empty(doc._citation)))
+    {
+        stream << "<h2>Legal</h2>\n<strong>";
+
+        if (!empty(doc._shortCopyright))
+            stream << doc._name << " Copyright: </strong>"
+                   << doc._shortCopyright << "<br>\n<strong>";
+
+        stream << "SeqAn Copyright:</strong> 2006-2015 Knut Reinert, FU-Berlin; released under the 3-clause BSDL.<br>\n<strong>";
+
+        if (!empty(doc._citation))
+            stream << "In your academic works please cite:</strong> " << doc._citation << "<br>\n";
+        else
+            stream << "</strong>";
+
+        if (!empty(doc._longCopyright))
+            stream << "For full copyright and/or warranty information see <tt>--copyright</tt>.\n";
+    }
 
     // Print HTML boilerplate footer.
     stream << "</body></html>";
@@ -1278,9 +1432,43 @@ void TextToolDocPrinter_::print(std::ostream & stream, ToolDoc const & doc)
     // Print version and date.
     stream << "\n" << _toText("\\fB") << "VERSION" << _toText("\\fP") << "\n";
     std::fill_n(out, _layout.leftPadding, ' ');
-    stream << doc._name << " version: " << doc._version << "\n";
+    stream << _toText("\\fB") << "Last update: " << _toText("\\fP") << doc._date << "\n";
     std::fill_n(out, _layout.leftPadding, ' ');
-    stream << "Last update " << doc._date << "\n";
+    stream << _toText("\\fB") << doc._name << " version: " << _toText("\\fP") << doc._version << "\n";
+    std::fill_n(out, _layout.leftPadding, ' ');
+    stream << _toText("\\fB") << "SeqAn version: " << _toText("\\fP") << SEQAN_VERSION_MAJOR << '.'
+           <<  SEQAN_VERSION_MINOR << '.' << SEQAN_VERSION_PATCH;
+    if (SEQAN_VERSION_PRE_RELEASE != 0)
+        stream << "-pre" << SEQAN_VERSION_PRE_RELEASE;
+    stream << "\n";
+
+    // Print legal stuff
+    if ((!empty(doc._shortCopyright)) || (!empty(doc._longCopyright)) || (!empty(doc._citation)))
+    {
+        stream << "\n" << _toText("\\fB") << "LEGAL" << _toText("\\fP") << "\n";
+
+        if (!empty(doc._shortCopyright))
+        {
+            std::fill_n(out, _layout.leftPadding, ' ');
+            stream << _toText("\\fB") << doc._name << " Copyright: "
+                   << _toText("\\fP") << doc._shortCopyright << "\n";
+        }
+        std::fill_n(out, _layout.leftPadding, ' ');
+        stream << _toText("\\fB") << "SeqAn Copyright: " << _toText("\\fP")
+               << "2006-2015 Knut Reinert, FU-Berlin; released under the 3-clause BSDL.\n";
+        if (!empty(doc._citation))
+        {
+            std::fill_n(out, _layout.leftPadding, ' ');
+            stream << _toText("\\fB") << "In your academic works please cite: " << _toText("\\fP")
+                   << doc._citation << "\n";
+        }
+        if (!empty(doc._longCopyright))
+        {
+            std::fill_n(out, _layout.leftPadding, ' ');
+            stream << "For full copyright and/or warranty information see " << _toText("\\fB")
+                   << "--copyright" << _toText("\\fP") << ".\n";
+        }
+    }
 }
 
 inline
@@ -1290,9 +1478,9 @@ void ManToolDocPrinter_::print(std::ostream & stream, ToolDoc const & doc)
 
     // Print .TH line.
     stream << ".TH ";
-    std::transform(begin(doc._name), end(doc._name), out, toupper);
+    std::transform(begin(doc._name), end(doc._name), out, static_cast < int(*)(int) > (toupper));
     stream << " " << doc._manSection << " \"" << doc._date << "\" \"";
-    std::transform(begin(doc._name), end(doc._name), out, tolower);
+    std::transform(begin(doc._name), end(doc._name), out, static_cast < int(*)(int) > (tolower));
     stream << " " << doc._version << "\" \"" << doc._manTitle << "\"\n";
 
     // Print NAME section.
@@ -1319,7 +1507,7 @@ void ManToolDocPrinter_::print(std::ostream & stream, ToolDoc const & doc)
         {
             ToolDocSection_ const * sec = static_cast<ToolDocSection_ const *>(entry);
             stream << ".SH ";
-            std::transform(begin(sec->_title), end(sec->_title), out, toupper);
+            std::transform(begin(sec->_title), end(sec->_title), out, static_cast < int(*)(int) > (toupper));
             stream << "\n";
             isFirstInSection = true;
         }
@@ -1347,6 +1535,23 @@ void ManToolDocPrinter_::print(std::ostream & stream, ToolDoc const & doc)
         }
         break;
         }
+    }
+
+    // Print legal stuff
+    if ((!empty(doc._shortCopyright)) || (!empty(doc._longCopyright)) || (!empty(doc._citation)))
+    {
+        stream << ".SH LEGAL\n";
+
+        if (!empty(doc._shortCopyright))
+            stream << "\\fB" << doc._name << " Copyright:\\fR " << doc._shortCopyright << "\n.br\n";
+
+        stream << "\\fBSeqAn Copyright:\\fR 2006-2015 Knut Reinert, FU-Berlin; released under the 3-clause BSDL.\n.br\n";
+
+        if (!empty(doc._citation))
+            stream << "\\fBIn your academic works please cite:\\fR " << doc._citation << "\n.br\n";
+
+        if (!empty(doc._longCopyright))
+            stream << "For full copyright and/or warranty information see \\fB--copyright\\fR.\n";
     }
 }
 

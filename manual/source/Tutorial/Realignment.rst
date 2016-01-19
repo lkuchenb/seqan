@@ -30,8 +30,10 @@ Usually, read mappers compute pairwise alignments of each read and the reference
 In the absence of indels, such pairwise alignments can be converted to a multi-read alignment without larger problems.
 However, when multiple alignments are close, something as in the following figure can happen.
 
-.. figure: raw_alignment.png
-    :alt: MSA as interpolated from pairwise alignments.
+.. 
+   Commented out because of missing picture in source dir.
+   .. figure:: raw_alignment.png
+       :alt: MSA as interpolated from pairwise alignments.
 
 The task of improving such an alignment is called **realignment** and there is a small number of algorithms and tools available for realignment.
 This tutorial describes the ``<seqan/realign.h>`` module which implements a variant of the ReAligner algorithm by Anson and Myers :cite:`Anson1997`.
@@ -43,11 +45,11 @@ Consider the following program.
 It creates a fragment store and then reads a small reference (with a length of 2kb) from a FASTA file and also a SAM file with reads spanning a complex indel region at position ~920.
 Finally, it prints the multi-read alignment around this position using :dox:`AlignedReadLayout`.
 
-.. includefrags:: demos/tutorial/realign/step1.cpp
+.. includefrags:: demos/tutorial/realignment/step1.cpp
 
 The output of the program is as follows:
 
-.. includefrags:: demos/tutorial/realign/step1.cpp.stdout
+.. includefrags:: demos/tutorial/realignment/step1.cpp.stdout
 
 Performing the Realignment
 --------------------------
@@ -74,9 +76,9 @@ The parameter ``bandwidth`` controls the bandwidth of the banded alignment used 
 If ``includeReference`` is ``true`` then the reference is added as a pseudo-read (a new read at the end of the read store).
 This can be used for computing alignments of the reads agains the original reference.
 
-.. includefrags:: demos/tutorial/realign/step2.cpp
+.. includefrags:: demos/tutorial/realignment/step2.cpp
 
 Here is the program's output.
 The reference pseudo-read is here shown as the first read (second row) below the reference (first row).
 
-.. includefrags:: demos/tutorial/realign/step2.cpp.stdout
+.. includefrags:: demos/tutorial/realignment/step2.cpp.stdout

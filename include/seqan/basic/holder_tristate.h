@@ -46,6 +46,10 @@ namespace seqan {
 // Forwards
 // ============================================================================
 
+template <typename TContainer>
+inline SEQAN_FUNC_ENABLE_IF(Is<StlContainerConcept<typename RemoveReference<TContainer>::Type> >, void)
+assign(TContainer SEQAN_FORWARD_ARG me, typename RemoveReference<TContainer>::Type source);
+
 #if SEQAN_ENABLE_POINTER_HOLDER
 template <typename T> struct IsSimple;
 
@@ -64,12 +68,12 @@ template <typename TValue> inline size_t length(TValue * me);
  * @extends Holder
  * @headerfile <seqan/basic.h>
  * @brief Holder that can be empty, dependent, or owner.
- * 
+ *
  * @signature template <typename TValue>
  *            class Holder<TValue, Tristate>;
- * 
+ *
  * @tparam TValue Type of the managed object.
- * 
+ *
  * A tristate holder <tt>A</tt> that holds an object <tt>B</tt> has one of the following states:
  *
  * <ul>
@@ -79,9 +83,9 @@ template <typename TValue> inline size_t length(TValue * me);
  *       used.</li>
  *   <li>empty: there is currently no object reference stored in the holder <tt>A</tt>.</li>
  * </ul>
- * 
+ *
  * The state of the holder can be determined by empty and dependent.
- * 
+ *
  * If a holder object is in owner state when destructed, the owned object is destructed as well.
  */
 
@@ -512,7 +516,7 @@ dependent(Holder<TValue, Tristate> const & me)
 template <typename THolder, typename TValue>
 inline void
 _holderDeallocate(THolder & me, TValue const & data)
-{   
+{
     valueDestruct(& data);
     deallocate(me, & data, 1);
 }
@@ -567,7 +571,7 @@ clear(Holder<TValue, Tristate> & me)
 template <typename THolder, typename TValue>
 inline typename Value<THolder, 0>::Type *
 _holderAllocateObject(THolder & me, TValue const & data)
-{   
+{
     typename Value<THolder>::Type * ret;
     allocate(me, ret, 1);
     valueConstruct(ret, data);
@@ -615,7 +619,7 @@ create(Holder<TValue, Tristate> & me)
             valueConstruct(me.data_value);
             me.data_state = THolder::OWNER;
             break;
-            
+
         case THolder::DEPENDENT:
             SEQAN_CHECKPOINT;
             create(me, _dataValue(me));
@@ -972,7 +976,7 @@ assign(Holder<TValue, Tristate> & target_,
         case Holder<TValue, Tristate>::EMPTY:
             clear(target_);
             break;
-            
+
         case Holder<TValue, Tristate>::OWNER:
             assignValue(target_, value(source_));
             break;

@@ -53,17 +53,17 @@ namespace seqan {
  * @extends String
  * @headerfile <seqan/sequence.h>
  * @brief Fast, static-size string.
- * 
+ *
  * @signature template <typename TValue, size_t CAPACITY>
  *            class String<TValue, Array<CAPACITY> >;
- * 
+ *
  * @tparam TValue The value type, that is the type of the items/characters
  *                stored in the string.Use @link Value @endlink to get the value
  *                type for a given class.
  * @tparam CAPACITY A positive integer that specifies the capacity of the
  *                string.Note that the capacity of an Array String is fixed at
  *                compile-time.
- * 
+ *
  * Having static-sized strings is useful as members of structs for external memory algorithms, for example.
  */
 
@@ -244,6 +244,22 @@ reserve(String<TValue, Array<CAPACITY> > & me,
     return capacity(me);
 }
 
+// ----------------------------------------------------------------------------
+// Function -*allocateStorage()
+// ----------------------------------------------------------------------------
+
+template <typename TValue, size_t CAPACITY, typename TSize>
+inline TValue *
+_allocateStorage(String<TValue, Array<CAPACITY> > & me, TSize /*capacity*/)
+{
+    return me.data_begin;
+}
+
+template <typename TValue, size_t CAPACITY, typename TSize>
+inline void
+_deallocateStorage(String<TValue, Array<CAPACITY> > & /*me*/, TValue * /*ptr*/, TSize /*capacity*/)
+{
+}
 
 // ----------------------------------------------------------------------------
 // Function _setLength()

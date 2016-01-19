@@ -74,7 +74,7 @@ struct Tag;
  * @macro ExceptionHandling#SEQAN_EXCEPTIONS
  * @headerfile <seqan/basic.h>
  * @brief Determines whether exceptions are enabled or not.
- * 
+ *
  * @signature #define SEQAN_EXCEPTIONS
  *
  * @see ExceptionHandling#SEQAN_TRY
@@ -89,11 +89,11 @@ struct Tag;
  * @macro ExceptionHandling#SEQAN_TRY
  * @headerfile <seqan/basic.h>
  * @brief Replaces the C++ try keyword.
- * 
+ *
  * @signature SEQAN_TRY {} SEQAN_CATCH() {}
- * 
+ *
  * When exceptions are disabled, i.e. SEQAN_EXCEPTIONS is set to false, the code inside the try block is always executed.
- * 
+ *
  * @see ExceptionHandling#SEQAN_CATCH
  * @see ExceptionHandling#SEQAN_THROW
  * @see Exception
@@ -118,7 +118,7 @@ struct Tag;
  * @macro ExceptionHandling#SEQAN_CATCH
  * @headerfile <seqan/basic.h>
  * @brief Replaces the C++ catch keyword.
- * 
+ *
  * @signature SEQAN_TRY {} SEQAN_CATCH() {}
  *
  * When exceptions are disabled, i.e. SEQAN_EXCEPTIONS is set to false, the code inside the catch block is never executed.
@@ -136,7 +136,7 @@ struct Tag;
  * @macro ExceptionHandling#SEQAN_THROW
  * @headerfile <seqan/basic.h>
  * @brief Replaces the C++ throw keyword.
- * 
+ *
  * @signature SEQAN_THROW(Exception);
  *
  * When exceptions are disabled, i.e. AssertMacros#SEQAN_EXCEPTIONS is set to false, the macro turns into SEQAN_FAIL.
@@ -150,7 +150,7 @@ struct Tag;
  *
  * See @link ExceptionHandling#SEQAN_TRY @endlink for a full example.
  */
- 
+
 #ifdef SEQAN_EXCEPTIONS
 
 #define SEQAN_TRY           try
@@ -350,13 +350,8 @@ struct AssertFunctor
 // Function globalExceptionHandler()
 // ----------------------------------------------------------------------------
 
-#if defined(SEQAN_EXCEPTIONS) && !defined(SEQAN_NO_GLOBAL_EXCEPTION_HANDLER)
+#if defined(SEQAN_EXCEPTIONS) && defined(SEQAN_GLOBAL_EXCEPTION_HANDLER)
 // Declare global exception handler.
-static void globalExceptionHandler();
-
-// Install global exception handler.
-static const std::terminate_handler _globalExceptionHandler = std::set_terminate(globalExceptionHandler);
-
 inline static void globalExceptionHandler()
 {
     SEQAN_TRY
@@ -372,7 +367,11 @@ inline static void globalExceptionHandler()
         SEQAN_FAIL("Uncaught exception of unknown type.\n");
     }
 }
-#endif  // #if defined(SEQAN_EXCEPTIONS) && !defined(SEQAN_NO_GLOBAL_EXCEPTION_HANDLER)
+
+// Install global exception handler.
+static const std::terminate_handler SEQAN_UNUSED _globalExceptionHandler = std::set_terminate(globalExceptionHandler);
+
+#endif  // #if defined(SEQAN_EXCEPTIONS) && defined(SEQAN_GLOBAL_EXCEPTION_HANDLER)
 
 }  // namespace seqan
 

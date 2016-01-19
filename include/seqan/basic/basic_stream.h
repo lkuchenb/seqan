@@ -58,9 +58,13 @@ inline void writeValue(Iter<TContainer, StreamIterator<Output> > &iter, TValue v
 template <typename TValue, typename TTraits>
 inline bool atEnd(std::istreambuf_iterator<TValue, TTraits> const &it);
 
-template <typename TChar, typename TCharTraits, typename TAlloc>
-inline typename std::basic_string<TChar, TCharTraits, TAlloc>::size_type
-length(std::basic_string<TChar, TCharTraits, TAlloc> const & me);
+template <typename TContainer>
+inline SEQAN_FUNC_ENABLE_IF(Is<StlContainerConcept<TContainer> >, typename Size<TContainer>::Type)
+length(TContainer const & me);
+
+template <typename TContainer, typename TSource>
+inline void
+appendValue(TContainer SEQAN_FORWARD_ARG me, TSource SEQAN_FORWARD_CARG source);
 
 /*!
  * @macro SEQAN_HAS_ZLIB
@@ -297,11 +301,12 @@ struct Is< NumberConcept< FormattedNumber<TValue> > > :
 
 /*!
  * @class ParseError
+ * @extends RuntimeError
  * @headerfile <seqan/basic.h>
  *
  * @brief Exception class for parser errors.
  *
- * @signature struct ParserError : RuntimeError;
+ * @signature struct ParseError : RuntimeError;
  */
 
 struct ParseError : RuntimeError
@@ -329,6 +334,7 @@ struct ParseError : RuntimeError
 
 /*!
  * @class UnexpectedEnd
+ * @extends ParseError
  * @headerfile <seqan/basic.h>
  *
  * @brief Exception class for "unexpected end of input" errors.
@@ -358,6 +364,7 @@ struct UnexpectedEnd : ParseError
 
 /*!
  * @class EmptyFieldError
+ * @extends ParseError
  * @headerfile <seqan/basic.h>
  *
  * @brief Exception class for "empty field" errors.
@@ -1045,12 +1052,13 @@ write(TTarget &target, TFwdIterator &iter, TSize n)
 }
 
 // ----------------------------------------------------------------------------
-// Function write(TContainer)
+// Function write(TContainer) but not container of container
 // ----------------------------------------------------------------------------
 
 template <typename TTarget, typename TContainer>
-inline SEQAN_FUNC_ENABLE_IF(And< Is<ContainerConcept<TContainer> >,
-                                 Not<IsContiguous<TContainer> > >, void)
+inline SEQAN_FUNC_ENABLE_IF(And< Not<IsContiguous<TContainer> >,
+                                 And< Is<ContainerConcept<TContainer> >,
+                                      Not<Is<ContainerConcept<typename Value<TContainer>::Type> > > > >, void)
 write(TTarget &target, TContainer &cont)
 {
     typename DirectionIterator<TContainer, Input>::Type iter = directionIterator(cont, Input());
@@ -1058,19 +1066,19 @@ write(TTarget &target, TContainer &cont)
 }
 
 template <typename TTarget, typename TContainer>
-inline SEQAN_FUNC_ENABLE_IF(And< Is<ContainerConcept<TContainer> >,
-                                 IsContiguous<TContainer> >, void)
+inline SEQAN_FUNC_ENABLE_IF(And< IsContiguous<TContainer>,
+                                 And< Is<ContainerConcept<TContainer> >,
+                                      Not<Is<ContainerConcept<typename Value<TContainer>::Type> > > > >, void)
 write(TTarget &target, TContainer &cont)
 {
     typename Iterator<TContainer, Standard>::Type iter = begin(cont, Standard());
     write(target, iter, length(cont));
 }
 
-
-
 template <typename TTarget, typename TContainer>
-inline SEQAN_FUNC_ENABLE_IF(And< Is<ContainerConcept<TContainer> >,
-                                 Not<IsContiguous<TContainer> > >, void)
+inline SEQAN_FUNC_ENABLE_IF(And< Not<IsContiguous<TContainer> >,
+                                 And< Is<ContainerConcept<TContainer> >,
+                                      Not<Is<ContainerConcept<typename Value<TContainer>::Type> > > > >, void)
 write(TTarget &target, TContainer const &cont)
 {
     typename DirectionIterator<TContainer const, Input>::Type iter = directionIterator(cont, Input());
@@ -1078,15 +1086,14 @@ write(TTarget &target, TContainer const &cont)
 }
 
 template <typename TTarget, typename TContainer>
-inline SEQAN_FUNC_ENABLE_IF(And< Is<ContainerConcept<TContainer> >,
-                                 IsContiguous<TContainer> >, void)
+inline SEQAN_FUNC_ENABLE_IF(And< IsContiguous<TContainer>,
+                                 And< Is<ContainerConcept<TContainer> >,
+                                      Not<Is<ContainerConcept<typename Value<TContainer>::Type> > > > >, void)
 write(TTarget &target, TContainer const &cont)
 {
     typename Iterator<TContainer const, Standard>::Type iter = begin(cont, Standard());
     write(target, iter, length(cont));
 }
-
-
 
 template <typename TTarget, typename TValue>
 inline void

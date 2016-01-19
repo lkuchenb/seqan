@@ -115,15 +115,15 @@ struct DefaultSeedConfig
  * The following example shows the usage of three seed extension algorithms using the tags <tt>MaxExtend</tt>,
  * <tt>UnGappedXDrop</tt>, and <tt>GappedXDrop</tt>.
  *
- * @include demos/seeds/seeds_extension.cpp
+ * @include demos/dox/seeds/seeds_extension.cpp
  *
  * The output is as follows:
  *
- * @include demos/seeds/seeds_extension.cpp.stdout
+ * @include demos/dox/seeds/seeds_extension.cpp.stdout
  *
  * Here is an example for global seed chaining:
  *
- * @include demos/seeds/seeds_chaining.cpp
+ * @include demos/dox/seeds/seeds_chaining.cpp
  */
 
 template <typename TSpec, typename TConfig = DefaultSeedConfig>
@@ -399,10 +399,10 @@ lowerDiagonal(Seed<TSpec, TConfig> const & seed)
  */
 
 template <typename TSpec, typename TConfig, typename TDiagonal>
-inline void 
+inline void
 setLowerDiagonal(Seed<TSpec, TConfig> & seed, TDiagonal newDiag)
 {
-	seed._lowerDiagonal = newDiag;
+    seed._lowerDiagonal = newDiag;
 }
 
 // ---------------------------------------------------------------------------
@@ -442,11 +442,11 @@ upperDiagonal(Seed<TSpec, TConfig> const & seed)
  */
 
 template <typename TSpec, typename TConfig, typename TPosition>
-inline void 
-setUpperDiagonal(Seed<TSpec, TConfig> & seed, 
-				 TPosition newDiag)
+inline void
+setUpperDiagonal(Seed<TSpec, TConfig> & seed,
+                 TPosition newDiag)
 {
-	seed._upperDiagonal = newDiag;
+    seed._upperDiagonal = newDiag;
 }
 
 // ---------------------------------------------------------------------------
@@ -618,7 +618,7 @@ _updateSeedsScoreMerge(Seed<TSpec, TConfig> & seed, Seed<TSpec, TConfig> const &
     double fracSeed = static_cast<double>(seedSize(seed) - 0.5 * overlap) / static_cast<double>(total);
     double fracOther = static_cast<double>(seedSize(other) - 0.5 * overlap) / static_cast<double>(total);
     typedef typename SeedScore<TSeed>::Type TScoreValue;
-	TScoreValue newScore = static_cast<TScoreValue>(round(fracSeed * score(seed) + fracOther * score(other)));
+    TScoreValue newScore = static_cast<TScoreValue>(round(fracSeed * score(seed) + fracOther * score(other)));
     setScore(seed, newScore);
 }
 

@@ -22,3 +22,16 @@ add_test (build_dox
   -i ${CMAKE_CURRENT_SOURCE_DIR}/../include/seqan
   -i ${CMAKE_CURRENT_SOURCE_DIR}/pages
   --image-dir ${CMAKE_CURRENT_SOURCE_DIR}/images)
+
+if (${SEQAN_BUILD_SYSTEM} MATCHES "SEQAN_RELEASE_LIBRARY") # includes SEQAN_RELEASE_LIBRARY
+
+    add_custom_target (dox ALL
+        ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../util/bin/dox.py
+        -b ${CMAKE_CURRENT_SOURCE_DIR}/..
+        -i ${CMAKE_CURRENT_SOURCE_DIR}/../include/seqan
+        -i ${CMAKE_CURRENT_SOURCE_DIR}/pages
+        --image-dir ${CMAKE_CURRENT_SOURCE_DIR}/images)
+
+    install (DIRECTORY ${CMAKE_BINARY_DIR}/dox/html
+             DESTINATION share/doc/seqan)
+endif ()

@@ -62,6 +62,7 @@ SEQAN_BEGIN_TESTSUITE(test_modifier)
     SEQAN_CALL_TEST(test_modifer_shortcuts_reverse_complement_in_place_string_set);
     SEQAN_CALL_TEST(test_modifer_shortcuts_reverse_in_place_string);
     SEQAN_CALL_TEST(test_modifer_shortcuts_reverse_in_place_string_set);
+    SEQAN_CALL_TEST(test_modifier_reverse_iterator_metafunctions);
     SEQAN_CALL_TEST(test_modifer_shortcuts_to_lower_in_place_string);
     SEQAN_CALL_TEST(test_modifer_shortcuts_to_lower_in_place_string_set);
     SEQAN_CALL_TEST(test_modifer_shortcuts_to_upper_in_place_string);
@@ -89,7 +90,6 @@ SEQAN_BEGIN_TESTSUITE(test_modifier)
 
     // Test modifier view string.
     SEQAN_CALL_TEST(test_modifier_view_iterator_metafunctions);
-    SEQAN_CALL_TEST(test_modifier_view_iterator_metafunctions);
     SEQAN_CALL_TEST(test_modifier_view_iterator);
     // SEQAN_CALL_TEST(test_modifier_view_const_iterator);
     SEQAN_CALL_TEST(test_modifier_view_string_caesar_chiffre);
@@ -112,10 +112,13 @@ SEQAN_BEGIN_TESTSUITE(test_modifier)
     SEQAN_CALL_TEST(test_modifier_modified_string_mod_view);
     SEQAN_CALL_TEST(test_modifier_modified_string_mod_view_segment);
 
+    SEQAN_CALL_TEST(test_modifier_modified_string_mod_pos);
+
 //    SEQAN_CALL_TEST(test_modifier_modified_string_literal);
     SEQAN_CALL_TEST(test_modifier_modified_string_const_literal);
     SEQAN_CALL_TEST(test_modifier_modified_string_reverse_segment);
 
     SEQAN_CALL_TEST(test_modifier_minimal);
+    SEQAN_CALL_TEST(test_modifier_reverse_back_front);
 }
 SEQAN_END_TESTSUITE

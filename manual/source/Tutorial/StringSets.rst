@@ -56,7 +56,7 @@ Specialization ``Owner<ConcatDirect>``
   The string set also stores lengths and starting positions of the strings.
   Inserting new strings into the set or removing strings from the set is more expensive than for the default :dox:`OwnerStringSet` specialization, since this involves moving all subsequent sequences in memory.
 
-Specialization ``Depedent<Tight>``
+Specialization ``Dependent<Tight>``
   This specialization stores sequence pointers consecutively in an array.
   Another array stores an id value for each sequence.
   That means that accessing given an id needs a search through the id array.
@@ -274,7 +274,7 @@ Workshop Assignment 4
      #. Build a StringSet of readList. Reuse the Rooted iterator above.
      #. Iterate over the StringSet and print out the values.
 
-     .. includefrags:: demos/tutorial/string_sets/assignment_3b_workshop_solution.cpp
+     .. includefrags:: demos/tutorial/string_sets/assignment_3_workshop_solution.cpp
 
    Solution
      Click **more...** to see the solution.

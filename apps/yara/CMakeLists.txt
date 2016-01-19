@@ -23,11 +23,17 @@ if (NOT (CXX11_FOUND AND CXX11_STL_FOUND))
     return ()
 endif (NOT (CXX11_FOUND AND CXX11_STL_FOUND))
 
+# Disable older MSVC.
+if (MSVC AND MSVC_VERSION LESS 1800)
+    message (STATUS "  Visual Studio 2012 or newer required to build yara.")
+    return ()
+endif ()
+
 # Disable parallelism in MSVC as it supports only OpenMP 2.0.
 if (MSVC)
-  set (SEQAN_FIND_DEPENDENCIES ZLIB BZIP2)
+  set (SEQAN_FIND_DEPENDENCIES ZLIB BZip2)
 else ()
-  set (SEQAN_FIND_DEPENDENCIES OpenMP ZLIB BZIP2)
+  set (SEQAN_FIND_DEPENDENCIES OpenMP ZLIB BZip2)
 endif ()
 
 # Search SeqAn and select dependencies.
@@ -43,14 +49,16 @@ if (NOT SEQAN_HAS_ZLIB)
   message (STATUS "  Zlib not found: building yara without gzipped input and BAM output.")
 endif (NOT SEQAN_HAS_ZLIB)
 
-# Warn if Bzip2 was not found.
+# Warn if BZip2 was not found.
 if (NOT SEQAN_HAS_BZIP2)
-  message (STATUS "  Bzip2 not found: building yara without bzipped input.")
+  message (STATUS "  BZip2 not found: building yara without bzipped input.")
 endif (NOT SEQAN_HAS_BZIP2)
 
 # ----------------------------------------------------------------------------
 # App-Level Configuration
 # ----------------------------------------------------------------------------
+
+set (SEQAN_APP_VERSION "0.9.4")
 
 option (YARA_LARGE_CONTIGS "Set to ON to enable support for more than 32k contigs or contigs longer than 4Gbp." OFF)
 if (YARA_LARGE_CONTIGS)
@@ -74,6 +82,18 @@ if (YARA_ARCH_NATIVE)
 endif (YARA_ARCH_NATIVE)
 
 # ----------------------------------------------------------------------------
+# Disable Compiler Warnings
+# ----------------------------------------------------------------------------
+
+# Disables warning about conversion from 64 bit to 32 bit integrals.
+# Note that there is a runtime exception thrown if the type is not sufficient.
+# Unfortunately the VC does not detect it.
+if (MSVC)
+    set (SEQAN_CXX_FLAGS "${SEQAN_CXX_FLAGS} /wd4244")  # When compiling on 32 bit windows.
+    set (SEQAN_CXX_FLAGS "${SEQAN_CXX_FLAGS} /wd4267")  # When compiling on 64 bit windows.
+endif (MSVC)
+
+# ----------------------------------------------------------------------------
 # Build Setup
 # ----------------------------------------------------------------------------
 
@@ -86,6 +106,7 @@ add_definitions (${SEQAN_DEFINITIONS})
 # Add definitions set by the build system.
 add_definitions (-DSEQAN_REVISION="${SEQAN_REVISION}")
 add_definitions (-DSEQAN_DATE="${SEQAN_DATE}")
+add_definitions (-DSEQAN_APP_VERSION="${SEQAN_APP_VERSION}")
 
 # Add CXX flags found by find_package (SeqAn).
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS} ${CXX11_CXX_FLAGS}")
@@ -108,7 +129,6 @@ add_executable(yara_mapper    mapper.cpp
                               mapper_filter.h
                               mapper_extender.h
                               mapper_verifier.h
-                              mapper_selector.h
                               mapper_aligner.h
                               mapper_writer.h
                               basic_alphabet.h
